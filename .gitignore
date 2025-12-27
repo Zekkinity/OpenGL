@@ -1,0 +1,4 @@
+build/
+.cache/
+notes.md
+compile_commands.json

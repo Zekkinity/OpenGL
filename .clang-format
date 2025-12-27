@@ -1,0 +1,10 @@
+# Base Style
+BasedOnStyle: Chromium
+IndentWidth: 4
+BreakConstructorInitializers: AfterColon
+ConstructorInitializerIndentWidth: 4
+
+ColumnLimit: 100
+
+# Includes
+SortIncludes: false
