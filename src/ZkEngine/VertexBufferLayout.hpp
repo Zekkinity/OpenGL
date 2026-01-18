@@ -1,7 +1,6 @@
 #pragma once
 
-#include "Renderer.hpp"
-
+#include <cassert>
 #include <vector>
 #include <glad/glad.h>
 
@@ -19,7 +18,7 @@ struct VertexBufferElement {
             case GL_UNSIGNED_BYTE:
                 return 1;
         }
-        ASSERT(false);
+        assert(false);
         return 0;
     }
 };
@@ -48,7 +47,6 @@ inline void VertexBufferLayout::push<float>(unsigned int count) {
     m_Elements.push_back({GL_FLOAT, count, GL_FALSE});
     m_Stride += count * VertexBufferElement::getSizeOfType(GL_FLOAT);
 }
-
 template <>
 inline void VertexBufferLayout::push<unsigned int>(unsigned int count) {
     m_Elements.push_back({GL_UNSIGNED_INT, count, GL_FALSE});

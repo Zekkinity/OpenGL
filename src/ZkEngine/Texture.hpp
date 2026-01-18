@@ -17,5 +17,7 @@ class Texture {
     unsigned int m_RendererID;
     std::string m_FilePath;
     unsigned char* m_LocalBuffer;
-    int m_Width, m_Height, m_BPP;  // bytes per pixel
+    int m_Width = 0;
+    int m_Height = 0;
+    int m_BPP = 0;  // bytes per pixel
 };
