@@ -1,4 +1,5 @@
 build/
 .cache/
-notes.md
+notes.*
+imgui.ini
 compile_commands.json
