@@ -3,15 +3,17 @@
 
 #include "ZkEngine/Input/GLFWInput.hpp"
 
+namespace zk {
+
 void glfw_error_callback(int error, const char* description) {
     fprintf(stderr, "Error: %s\n", description);
 }
 
 void frameBufferSizeCallback(GLFWwindow* window, int width, int height) {
-    glViewport(0, 0, width, height);
+    // glViewport(0, 0, width, height);
 }
 
-Window::Window(const WindowSpecs& specs) : m_Specs(specs) {}
+Window::Window(const EngineSpecs& specs) : m_Specs(specs) {}
 
 Window::~Window() {
     destroy();
@@ -28,10 +30,13 @@ void Window::create() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);  // important for debug callback
+    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE); // important for debug callback
 
     // MSAA
     glfwWindowHint(GLFW_SAMPLES, 8);
+
+    // Force X11
+    // glfwWindowHint(GLFW_PLATFORM, GLFW_PLATFORM_X11);
 
     m_Window = glfwCreateWindow(m_Specs.width, m_Specs.height, m_Specs.title.c_str(), NULL, NULL);
     if (!m_Window) {
@@ -101,3 +106,5 @@ void Window::setCursorLocked(bool locked) {
 int Window::getCursorMode() const {
     return glfwGetInputMode(m_Window, GLFW_CURSOR);
 }
+
+} // namespace zk

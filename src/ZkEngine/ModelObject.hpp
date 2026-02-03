@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Renderer/Renderer.hpp"
-
 #include "Model.hpp"
 #include "Material.hpp"
 #include "Transform3D.hpp"
+
+namespace zk {
 
 class ModelObject {
    public:
@@ -23,3 +23,5 @@ class ModelObject {
     std::vector<glm::vec4> m_Colors;
     std::vector<bool> m_HasTexture;
 };
+
+}

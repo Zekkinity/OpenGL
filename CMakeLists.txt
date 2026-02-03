@@ -48,15 +48,14 @@ find_package(assimp REQUIRED)
 find_package(OpenGL REQUIRED)
 
 file(GLOB_RECURSE SRC_FILES "src/*.cpp")
-add_executable(zkEngine ${SRC_FILES})
-# add_library(zkEngine STATIC ${SRC_FILES})
+add_library(zkEngine STATIC ${SRC_FILES})
 
 # src
-target_include_directories(zkEngine PRIVATE
+target_include_directories(zkEngine PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
-target_link_libraries(zkEngine PRIVATE
+target_link_libraries(zkEngine PUBLIC
     glfw
     glad
     stb_image

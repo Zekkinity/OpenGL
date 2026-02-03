@@ -5,14 +5,11 @@
 
 #include "glm/ext/matrix_float4x4.hpp"
 
-struct ShaderProgramSource {
-    std::string VertexSource;
-    std::string FragmentSource;
-};
+namespace zk {
 
 class Shader {
    public:
-    Shader(const std::string& filepath);
+    Shader(const std::string& vertexShader, const std::string& fragmentShader);
     ~Shader();
 
     void bind() const;
@@ -21,6 +18,7 @@ class Shader {
     // Set uniforms
     void setUniform1i(const std::string& name, int value);
     void setUniform1f(const std::string& name, float value);
+    void setUniform3f(const std::string& name, float v0, float v1, float v2);
     void setUniform4f(const std::string& name, float v0, float v1, float v2, float v3);
 
     void setUniform3fv(const std::string& name, const glm::vec3& value);
@@ -30,15 +28,18 @@ class Shader {
     void setUniformMat4f(const std::string& name, const glm::mat4& matrix);
 
    private:
-    ShaderProgramSource parseShader(const std::string& filepath);
-    unsigned int createShader(const std::string& vertexShader, const std::string& fragmentShader);
-    unsigned int compileShader(unsigned int type, const std::string& source);
+    std::string readFile(const std::string& filepath);
+
+    uint32_t createShader(const std::string& vertexShader, const std::string& fragmentShader);
+    uint32_t compileShader(uint32_t type, const std::string& source);
 
     int getUniformLocation(const std::string& name);
 
    private:
-    unsigned int m_RendererID;
+    uint32_t m_RendererID = 0;
     std::string m_FilePath;
     // Caching for uniforms
     std::unordered_map<std::string, int> m_UniformLocationCache;
 };
+
+}

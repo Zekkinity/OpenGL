@@ -4,6 +4,8 @@
 #include <vector>
 #include <glad/glad.h>
 
+namespace zk {
+
 struct VertexBufferElement {
     unsigned int type;
     unsigned int count;
@@ -11,12 +13,12 @@ struct VertexBufferElement {
 
     static unsigned int getSizeOfType(unsigned int type) {
         switch (type) {
-            case GL_FLOAT:
-                return 4;
-            case GL_UNSIGNED_INT:
-                return 4;
-            case GL_UNSIGNED_BYTE:
-                return 1;
+        case GL_FLOAT:
+            return 4;
+        case GL_UNSIGNED_INT:
+            return 4;
+        case GL_UNSIGNED_BYTE:
+            return 1;
         }
         assert(false);
         return 0;
@@ -24,7 +26,7 @@ struct VertexBufferElement {
 };
 
 class VertexBufferLayout {
-   public:
+  public:
     VertexBufferLayout() : m_Stride(0) {}
 
     template <typename T>
@@ -36,7 +38,7 @@ class VertexBufferLayout {
 
     unsigned int getStride() const { return m_Stride; }
 
-   private:
+  private:
     std::vector<VertexBufferElement> m_Elements;
 
     unsigned int m_Stride;
@@ -58,3 +60,5 @@ inline void VertexBufferLayout::push<unsigned char>(unsigned int count) {
     m_Elements.push_back({GL_UNSIGNED_BYTE, count, GL_TRUE});
     m_Stride += count * VertexBufferElement::getSizeOfType(GL_UNSIGNED_BYTE);
 }
+
+} // namespace zk

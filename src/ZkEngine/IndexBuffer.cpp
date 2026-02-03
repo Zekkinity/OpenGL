@@ -1,6 +1,6 @@
 #include "IndexBuffer.hpp"
 
-#include "ZkEngine/Renderer/Renderer.hpp"
+#include "ZkEngine/Renderer/RendererBackend.hpp"
 
 IndexBuffer::IndexBuffer(const unsigned int* data, unsigned int count) : m_Count(count) {
     assert(sizeof(unsigned int) == sizeof(GLuint));

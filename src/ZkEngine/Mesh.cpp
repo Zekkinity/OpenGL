@@ -2,6 +2,8 @@
 
 #include "VertexBufferLayout.hpp"
 
+namespace zk {
+
 Mesh::Mesh(std::vector<Vertex> vertices, std::vector<uint32_t> indices) :
     m_Vertices(std::move(vertices)), m_Indices(std::move(indices)) {
     vao.bind();
@@ -73,4 +75,6 @@ void Mesh::updateVertices(const glm::vec3& p1, const glm::vec3& p2) {
     ibo->bind();
 
     vao.unbind();
+}
+
 }

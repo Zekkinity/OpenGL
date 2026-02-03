@@ -4,6 +4,8 @@
 
 #include "Mesh.hpp"
 
+namespace zk {
+
 struct MeshData {
     Mesh mesh;
     std::string diffuseTexturePath;
@@ -11,20 +13,22 @@ struct MeshData {
 };
 
 class Model {
-   public:
+  public:
     Model(const std::string& path);
 
     const std::vector<MeshData>& getMeshes() const;
 
-   private:
+  private:
     void loadModel(const std::string& path);
     void processNode(aiNode* node, const aiScene* scene);
     MeshData processMesh(aiMesh* mesh, const aiScene* scene);
 
     std::string loadMaterialTexture(aiMaterial* material, aiTextureType type);
 
-   private:
+  private:
     // std::vector<Mesh> m_Meshes;
     std::vector<MeshData> m_Meshes;
     std::string m_Directory;
 };
+
+} // namespace zk

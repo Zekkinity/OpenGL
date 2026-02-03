@@ -1,7 +1,9 @@
 #include "VertexArray.hpp"
 
-#include "Renderer/Renderer.hpp"
+#include "Renderer/RendererBackend.hpp"
 #include "VertexBufferLayout.hpp"
+
+namespace zk {
 
 VertexArray::VertexArray() {
     glGenVertexArrays(1, &m_RendererID);
@@ -39,8 +41,13 @@ void VertexArray::addBuffer(const VertexBuffer& vbo, const VertexBufferLayout& l
 
         // This lets us specify the layout of the data in the buffer.
         // also links the current binded buffer to the VAO
-        glVertexAttribPointer(i, element.count, element.type, element.normalized,
-                              layout.getStride(), (const void*)offset);
+        glVertexAttribPointer(
+            i,
+            element.count,
+            element.type,
+            element.normalized,
+            layout.getStride(),
+            (const void*)offset);
         glEnableVertexAttribArray(i);
 
         offset += element.count * VertexBufferElement::getSizeOfType(element.type);
@@ -55,3 +62,5 @@ void VertexArray::bind() const {
 void VertexArray::unbind() const {
     glBindVertexArray(0);
 }
+
+} // namespace zk

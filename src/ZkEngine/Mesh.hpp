@@ -8,6 +8,8 @@
 #include "VertexBufferLayout.hpp"
 #include <glm/glm.hpp>
 
+namespace zk {
+
 class Mesh {
    public:
     Mesh() = default;
@@ -41,3 +43,5 @@ class Mesh {
     std::vector<Vertex> m_Vertices;
     std::vector<uint32_t> m_Indices;
 };
+
+}

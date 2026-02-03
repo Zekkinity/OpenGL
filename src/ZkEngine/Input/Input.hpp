@@ -2,11 +2,12 @@
 
 #include "KeyCodes.hpp"
 
-using Key = Input::Key;
-using MouseButton = Input::MouseButton;
+using Key = zk::Input::Key;
+using MouseButton = zk::Input::MouseButton;
 
-namespace Input
+namespace zk::Input
 {
+
     void Init();
     void Update();
 
@@ -21,8 +22,11 @@ namespace Input
     float GetMouseX();
     float GetMouseY();
 
+    float GetMouseScroll();
+
     void SetKey(Key key, bool down);
     void SetMouseButton(MouseButton button, bool down);
     void SetMouse(float x, float y);
+    void SetMouseScroll(float yOffset);
 }
 

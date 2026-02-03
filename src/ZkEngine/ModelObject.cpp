@@ -1,7 +1,9 @@
 #include "ModelObject.hpp"
 
-ModelObject::ModelObject(std::shared_ptr<Model> model, std::shared_ptr<Shader> shader) :
-    m_Model(model) {
+namespace zk {
+
+ModelObject::ModelObject(std::shared_ptr<Model> model, std::shared_ptr<Shader> shader)
+    : m_Model(model) {
     const auto& meshes = model->getMeshes();
     for (size_t i = 0; i < meshes.size(); i++) {
         const auto& meshData = meshes[i];
@@ -44,7 +46,9 @@ void ModelObject::draw(const glm::mat4& viewProj) const {
         }
 
         meshData.mesh.bind();
-        glDrawElements(GL_TRIANGLES, meshData.mesh.getIndexBuffer().getCount(), GL_UNSIGNED_INT,
-                       nullptr);
+        glDrawElements(
+            GL_TRIANGLES, meshData.mesh.getIndexBuffer().getCount(), GL_UNSIGNED_INT, nullptr);
     }
 }
+
+} // namespace zk

@@ -4,19 +4,14 @@
 #include <GLFW/glfw3.h>
 
 #include <glm/glm.hpp>
-#include <cstdint>
-#include <string>
 
-struct WindowSpecs {
-    std::string title;
-    uint32_t width = 1280;
-    uint32_t height = 720;
-    bool vsync = true;
-};
+#include "EngineSpecs.hpp"
+
+namespace zk {
 
 class Window {
-   public:
-    Window(const WindowSpecs& specs);
+  public:
+    Window(const EngineSpecs& specs);
     ~Window();
 
     void create();
@@ -39,8 +34,12 @@ class Window {
     void setWidth(int width) { m_Specs.width = width; }
     void setHeight(int height) { m_Specs.height = height; }
 
-   private:
+    void makeContextCurrent() { glfwMakeContextCurrent(m_Window); }
+
+  private:
     GLFWwindow* m_Window;
 
-    WindowSpecs m_Specs;
+    EngineSpecs m_Specs;
 };
+
+} // namespace zk

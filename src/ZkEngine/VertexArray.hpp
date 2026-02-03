@@ -2,10 +2,12 @@
 
 #include "VertexBuffer.hpp"
 
+namespace zk {
+
 class VertexBufferLayout;
 
 class VertexArray {
-   public:
+  public:
     VertexArray();
     ~VertexArray();
 
@@ -20,6 +22,8 @@ class VertexArray {
     void bind() const;
     void unbind() const;
 
-   private:
+  private:
     unsigned int m_RendererID;
 };
+
+} // namespace zk

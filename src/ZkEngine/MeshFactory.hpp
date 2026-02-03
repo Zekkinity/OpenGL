@@ -3,7 +3,7 @@
 #include <memory>
 #include "Mesh.hpp"
 
-namespace MeshFactory {
+namespace zk::MeshFactory {
 
 std::shared_ptr<Mesh> createLine();
 std::shared_ptr<Mesh> createTriangle();

@@ -4,6 +4,8 @@
 #include "Material.hpp"
 #include "Transform3D.hpp"
 
+namespace zk {
+
 class RenderObject {
    public:
     RenderObject(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material) : mesh(mesh), material(material) {}
@@ -20,3 +22,5 @@ class RenderObject {
         colorOverride = true;
     }
 };
+
+}

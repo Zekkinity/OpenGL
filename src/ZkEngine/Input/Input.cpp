@@ -3,7 +3,7 @@
 #include <array>
 #include <cstddef>
 
-namespace Input
+namespace zk::Input
 {
 
     static std::array<bool, (size_t)Key::Count> s_Current;
@@ -14,6 +14,7 @@ namespace Input
 
     static float s_MouseX = 0.0f;
     static float s_MouseY = 0.0f;
+    static float s_MouseScroll = 0.0f;
 
     void Init()
     {
@@ -65,6 +66,12 @@ namespace Input
     float GetMouseX() { return s_MouseX; }
     float GetMouseY() { return s_MouseY; }
 
+    float GetMouseScroll() { 
+        float scroll = s_MouseScroll;
+        s_MouseScroll = 0.0f;
+        return scroll;
+    }
+
     // --- internal setters (used by platform layer) ---
     void SetKey(Key key, bool down)
     {
@@ -79,5 +86,10 @@ namespace Input
     {
         s_MouseX = x;
         s_MouseY = y;
+    }
+
+    void SetMouseScroll(float scroll)
+    {
+        s_MouseScroll = scroll;
     }
 }

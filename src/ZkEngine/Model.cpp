@@ -4,6 +4,8 @@
 #include <iostream>
 #include <assimp/postprocess.h>
 
+namespace zk {
+
 Model::Model(const std::string& path) {
     loadModel(path);
 }
@@ -11,9 +13,10 @@ Model::Model(const std::string& path) {
 void Model::loadModel(const std::string& path) {
     Assimp::Importer importer;
 
-    const aiScene* scene =
-        importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_FlipUVs |
-                                    aiProcess_JoinIdenticalVertices);
+    const aiScene* scene = importer.ReadFile(
+        path,
+        aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_FlipUVs |
+            aiProcess_JoinIdenticalVertices);
 
     if (!scene || !scene->mRootNode) {
         std::cerr << "Assimp error: " << importer.GetErrorString() << std::endl;
@@ -117,3 +120,5 @@ std::string Model::loadMaterialTexture(aiMaterial* material, aiTextureType type)
 const std::vector<MeshData>& Model::getMeshes() const {
     return m_Meshes;
 }
+
+} // namespace zk

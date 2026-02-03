@@ -4,11 +4,14 @@
 #include "ZkEngine/Shader.hpp"
 #include "ZkEngine/Texture.hpp"
 
+namespace zk {
+
 class Material {
    public:
-    Material(std::shared_ptr<Shader> shader, std::shared_ptr<Texture> texture);
+    Material(std::shared_ptr<Shader> shader, std::shared_ptr<Texture> texture, std::shared_ptr<Texture> specularMap = nullptr);
 
     void bind(const glm::mat4& viewProj, const glm::mat4& model) const;
+    void unbind() const;
 
     Shader& getShader() const { return *m_Shader; }
 
@@ -20,9 +23,12 @@ class Material {
    private:
     std::shared_ptr<Shader> m_Shader;
     std::shared_ptr<Texture> m_Texture;
+    std::shared_ptr<Texture> m_SpecularMap;
 
     glm::vec4 m_Color = {1, 1, 1, 1};
     float m_ToonSteps = 4.0f;
 
     glm::vec3 m_LightDir = {-1, -1, -1};
 };
+
+}

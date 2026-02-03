@@ -6,12 +6,15 @@
 #include "imgui.h"
 #include "Utils/Time.hpp"
 
+namespace zk {
+
 struct Ray {
     glm::vec3 origin;
     glm::vec3 direction;
 };
 
-Ray PhysicsSystem::makeRayFromScreenCenter(int width, int height) {
+// Throws a ray from the cameras position in the center of the screen
+Ray PhysicsSystem::makeRayFromScreenCenter(int width, int height, Camera3D& camera) {
     glm::vec2 screenPos(width * 0.5f, height * 0.5f);
 
     glm::vec4 ndc;
@@ -20,20 +23,18 @@ Ray PhysicsSystem::makeRayFromScreenCenter(int width, int height) {
     ndc.z = -1.0f;
     ndc.w = 1.0f;
 
-    glm::mat4 invVP = glm::inverse(m_Camera.getViewProjection());
+    glm::mat4 invVP = glm::inverse(camera.getViewProjection());
     glm::vec4 worldPos = invVP * ndc;
     worldPos /= worldPos.w;
 
-    glm::vec3 origin = m_Camera.getPosition();
+    glm::vec3 origin = camera.getPosition();
     glm::vec3 direction = glm::normalize(glm::vec3(worldPos) - origin);
 
     return {origin, direction};
 }
 
-bool PhysicsSystem::raySphereIntersect(const Ray& ray,
-                                       const glm::vec3& center,
-                                       float radius,
-                                       float& outT) {
+bool PhysicsSystem::raySphereIntersect(
+    const Ray& ray, const glm::vec3& center, float radius, float& outT) {
     glm::vec3 oc = ray.origin - center;
 
     float a = glm::dot(ray.direction, ray.direction);
@@ -48,8 +49,6 @@ bool PhysicsSystem::raySphereIntersect(const Ray& ray,
     return outT >= 0.0f;
 }
 
-PhysicsSystem::PhysicsSystem(Camera3D& camera) : m_Camera(camera) {}
-
 // void PhysicsSystem::init() {
 // // DEBUG: Init vectors
 // m_VelocityVector = std::make_unique<RenderObject>(velocityMesh, normalMaterial);
@@ -62,11 +61,11 @@ PhysicsSystem::PhysicsSystem(Camera3D& camera) : m_Camera(camera) {}
 // m_AngularVector->setColor({0.0f, 1.0f, 0.0f, 1.0f});
 // }
 
-void PhysicsSystem::update(RenderObject& object, float dt) {
+void PhysicsSystem::update(RenderObject& object, Camera3D& camera, float dt) {
     // applyGravity(object, dt);
 
     if (Input::IsMousePressed(MouseButton::Left)) {
-        Ray ray = makeRayFromScreenCenter(1920, 1080);
+        Ray ray = makeRayFromScreenCenter(1920, 1080, camera);
 
         float t;
         if (raySphereIntersect(ray, object.transform.position, 2.0f, t)) {
@@ -81,7 +80,7 @@ void PhysicsSystem::update(RenderObject& object, float dt) {
     glm::vec3 acceleration = glm::vec3(0.0f);
 
     // Magnus coeff will make the curve more exagerated
-    float MAGNUS_COEFF = 0.00015f;  // try 0.006 - 0.0025
+    float MAGNUS_COEFF = 0.00015f; // try 0.006 - 0.0025
     if (speed > 0.01f) {
         glm::vec3 effectiveSpin = m_AngularVelocity * 0.5f;
 
@@ -90,7 +89,7 @@ void PhysicsSystem::update(RenderObject& object, float dt) {
     }
 
     // Adjust this value to change how fast the object slows down
-    float DRAG_COEFF = 0.0002f;  // try 0.03 – 0.1
+    float DRAG_COEFF = 0.0002f; // try 0.03 – 0.1
     glm::vec3 dragAcc = -DRAG_COEFF * m_Velocity * glm::length(m_Velocity);
     acceleration += dragAcc;
 
@@ -137,7 +136,7 @@ void PhysicsSystem::update(RenderObject& object, float dt) {
     }
     object.transform.rotationQuat = m_Orientation;
 
-    float angularDamping = 0.2f;  // per second-ish
+    float angularDamping = 0.2f; // per second-ish
     m_AngularVelocity *= exp(-angularDamping * dt);
 
     // // DEBUG: Draw velocity vector
@@ -195,8 +194,11 @@ void PhysicsSystem::debug() {
     }
 
     ImGui::Text("Velocity: %.2f %.2f %.2f", m_Velocity.x, m_Velocity.y, m_Velocity.z);
-    ImGui::Text("Angular Vel: %.2f %.2f %.2f", m_AngularVelocity.x, m_AngularVelocity.y,
-                m_AngularVelocity.z);
+    ImGui::Text(
+        "Angular Vel: %.2f %.2f %.2f",
+        m_AngularVelocity.x,
+        m_AngularVelocity.y,
+        m_AngularVelocity.z);
 }
 
 void PhysicsSystem::drawDebugVectors() const {
@@ -205,3 +207,5 @@ void PhysicsSystem::drawDebugVectors() const {
     // m_GravityVector->draw(m_Camera.getViewProjection());
     // m_AngularVector->draw(m_Camera.getViewProjection());
 }
+
+} // namespace zk

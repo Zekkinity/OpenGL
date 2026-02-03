@@ -1,13 +1,17 @@
 #pragma once
 
+namespace zk {
+
 class VertexBuffer {
-   public:
+  public:
     VertexBuffer(const void* data, unsigned int size);
     ~VertexBuffer();
 
     void bind() const;
     void unbind() const;
 
-   private:
+  private:
     unsigned int m_RendererID;
 };
+
+} // namespace zk

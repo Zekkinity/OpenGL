@@ -2,6 +2,8 @@
 
 #include <glm/glm.hpp>
 
+namespace zk {
+
 struct CameraState {
     glm::vec3 position;
     float yaw;
@@ -9,58 +11,67 @@ struct CameraState {
 };
 
 class Camera3D {
-   public:
-    CameraState getState() const { return {position, yaw, pitch}; }
+  public:
+    CameraState getState() const { return {m_Position, m_Yaw, m_Pitch}; }
     void setState(const CameraState& state) {
-        position = state.position;
-        yaw = state.yaw;
-        pitch = state.pitch;
+        m_Position = state.position;
+        m_Yaw = state.yaw;
+        m_Pitch = state.pitch;
         updateVectors();
-        updateView();
     }
 
-    glm::vec3 getPosition() const { return position; }
+    glm::vec3 getPosition() const { return m_Position; }
     void setPosition(glm::vec3 pos) {
-        position = pos;
+        m_Position = pos;
         updateView();
     }
 
-    void onKeyPress(float deltaTime);
-    void onMouseMove();
-    void updateMovement(float deltaTime);
+    glm::vec3 getFront() const { return m_Front; }
 
-    void updateVectors();
-    void updateView();
-
-    void onWindowResize(float width, float height);
+    void setFOV(float fov);
 
     glm::mat4 getViewProjection() const;
 
+    void onKeyPress(float deltaTime);
+    void onMouseMove();
+    void onMouseScroll();
+
+    void onWindowResize(float width, float height);
     void setFirstMouse(bool first);
 
     void debug();
 
-   private:
-    glm::mat4 projection = glm::mat4(1.0f);
+    void updateView();
 
-    glm::vec3 position = glm::vec3(0.0f, 1.0f, 0.0f);
+  private:
+    void updateProjection(float width, float height);
 
-    float yaw = -90.0f;  // left/right
-    float pitch = 0.0f;  // up/down
+    void updateVectors();
 
-    float sensitivity = 0.1f;
-    float speed = 60.0f;
+  private:
+    glm::mat4 m_View = glm::mat4(1.0f);
+    glm::mat4 m_Projection = glm::mat4(1.0f);
 
-    glm::vec3 front = glm::vec3(0.0f, 0.0f, -1.0f);
-    glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-    glm::vec3 right = glm::vec3(1.0f, 0.0f, 0.0f);
+    glm::vec3 m_Position = glm::vec3(0.0f, 1.0f, 20.0f);
 
-    glm::mat4 view = glm::mat4(1.0f);
+    float m_Yaw = -90.0f; // left/right
+    float m_Pitch = 0.0f; // up/down
 
-    float fov = 45.0f;
+    float m_Sensitivity = 0.1f;
+    float m_Speed = 60.0f;
+
+    glm::vec3 m_Front = glm::vec3(0.0f, 0.0f, -1.0f);
+    glm::vec3 m_Up = glm::vec3(0.0f, 1.0f, 0.0f);
+    glm::vec3 m_Right = glm::vec3(1.0f, 0.0f, 0.0f);
+
+    glm::vec3 m_Forward;
+
+    float m_FOV = 45.0f;
 
     // Mouse
     bool firstMouse = true;
     float lastX = 960.0f;
     float lastY = 540.0f;
 };
+
+} // namespace zk

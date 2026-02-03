@@ -2,8 +2,10 @@
 
 #include <GLFW/glfw3.h>
 
+namespace zk {
+
 class ImGuiLayer {
-public:
+  public:
     ImGuiLayer() = default;
     ~ImGuiLayer() = default;
 
@@ -13,3 +15,5 @@ public:
     void endFrame();
     void shutdown();
 };
+
+} // namespace zk

@@ -1,6 +1,8 @@
 #include "VertexBuffer.hpp"
 
-#include "Renderer/Renderer.hpp"
+#include "Renderer/RendererBackend.hpp"
+
+namespace zk {
 
 VertexBuffer::VertexBuffer(const void* data, unsigned int size) {
     // VBO
@@ -18,3 +20,5 @@ void VertexBuffer::bind() const {
 void VertexBuffer::unbind() const {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
+
+} // namespace zk

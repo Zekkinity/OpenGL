@@ -1,10 +1,54 @@
-# Base Style
-BasedOnStyle: Chromium
-IndentWidth: 4
-BreakConstructorInitializers: AfterColon
-ConstructorInitializerIndentWidth: 4
+# # Base Style
+# BasedOnStyle: Chromium
+# IndentWidth: 4
+# BreakConstructorInitializers: AfterColon
+# ConstructorInitializerIndentWidth: 4
+#
+# ColumnLimit: 100
+#
+BasedOnStyle: LLVM
+Language: Cpp
 
+# Line width similar to engines
 ColumnLimit: 100
+
+# Brackets & wrapping
+AlignAfterOpenBracket: AlwaysBreak
+AllowAllArgumentsOnNextLine: true
+AllowAllParametersOfDeclarationOnNextLine: true
+
+# Avoid ugly breaks after =
+BreakBeforeBinaryOperators: None
+BreakBeforeTernaryOperators: true
+
+# Indentation style
+IndentWidth: 4
+ContinuationIndentWidth: 4
+TabWidth: 4
+UseTab: Never
+
+# Function call formatting (important)
+BinPackArguments: false
+BinPackParameters: false
+
+# Constructor / call breaking behavior
+PenaltyBreakBeforeFirstCallParameter: 1
+PenaltyBreakAssignment: 1
+PenaltyReturnTypeOnItsOwnLine: 200
+
+# General engine-like readability
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+
+# Pointer/reference style (engine-ish)
+PointerAlignment: Left
+ReferenceAlignment: Left
 
 # Includes
 SortIncludes: false
+
+# Namespace formatting
+
+# Template formatting
+BreakTemplateDeclarations: Yes

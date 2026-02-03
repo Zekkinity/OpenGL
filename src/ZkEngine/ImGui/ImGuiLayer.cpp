@@ -4,6 +4,8 @@
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
 
+namespace zk {
+
 void ImGuiLayer::init(GLFWwindow* window) {
     ImGui::CreateContext();
     ImGui_ImplOpenGL3_Init("#version 460");
@@ -27,3 +29,5 @@ void ImGuiLayer::shutdown() {
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
 }
+
+} // namespace zk

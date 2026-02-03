@@ -1,7 +1,8 @@
 #include "MeshFactory.hpp"
+#include "ZkEngine/RenderObject.hpp"
 #include "glm/ext/scalar_constants.hpp"
 
-namespace MeshFactory {
+namespace zk::MeshFactory {
 
 std::shared_ptr<Mesh> createLine() {
     std::vector<Vertex> vertices = {

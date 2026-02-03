@@ -3,6 +3,8 @@
 #include "glm/ext/matrix_transform.hpp"
 #include <glm/gtc/quaternion.hpp>
 
+namespace zk {
+
 struct Transform3D {
     glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f);
     glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -14,14 +16,16 @@ struct Transform3D {
 
         model = glm::translate(model, position);
 
-        model *= glm::mat4_cast(rotationQuat);
+        // model *= glm::mat4_cast(rotationQuat);
 
-        // model = glm::rotate(model, glm::radians(rotation.x), glm::vec3(1, 0, 0));
-        // model = glm::rotate(model, glm::radians(rotation.y), glm::vec3(0, 1, 0));
-        // model = glm::rotate(model, glm::radians(rotation.z), glm::vec3(0, 0, 1));
+        model = glm::rotate(model, glm::radians(rotation.x), glm::vec3(1, 0, 0));
+        model = glm::rotate(model, glm::radians(rotation.y), glm::vec3(0, 1, 0));
+        model = glm::rotate(model, glm::radians(rotation.z), glm::vec3(0, 0, 1));
 
         model = glm::scale(model, scale);
 
         return model;
     }
 };
+
+} // namespace zk
