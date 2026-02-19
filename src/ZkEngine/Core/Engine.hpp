@@ -25,15 +25,14 @@ class Engine {
 
   private:
     void init(const EngineSpecs& specs);
-
     void update(float dt);
-
     void render();
 
     void onWindowResize(int width, int height);
 
     void shutdown();
 
+    void onImGuiRender();
 
   private:
     inline static Engine* s_Instance = nullptr;

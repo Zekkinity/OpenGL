@@ -61,15 +61,21 @@ void Engine::run(Application& app) {
 void Engine::update(float dt) {
     m_Renderer->update();
 
+    // TODO:
+    // Get current ACTIVE Camera
+    // since this will not allow multiple cameras
+    // - Maybe provide Renderer a pointer to the active camera and update it inside update()
+    m_Renderer->updateCamera(*m_SceneManager.getScene().getCamera());
+
     m_App->onUpdate(dt);
     onWindowResize(1920, 1080);
 }
 
 void Engine::render() {
     m_Renderer->beginFrame();
-
-    m_App->onRender(*m_Renderer);
-
+    {
+        m_App->onRender(*m_Renderer);
+    }
     m_Renderer->endFrame();
 
     if (m_HideDebugWindow)
@@ -77,63 +83,17 @@ void Engine::render() {
 
     m_ImGuiLayer.beginFrame();
     {
-        ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Once);
-        ImGui::Begin("ZkEngine");
-
-        ImGui::Text(
-            "Engine average %.3f ms/frame (%.1f FPS)",
-            1000.0f / ImGui::GetIO().Framerate,
-            ImGui::GetIO().Framerate);
-
-        if (ImGui::BeginTabBar("##tabs", ImGuiTabBarFlags_None)) {
-            if (ImGui::BeginTabItem("Time")) {
-                ImGui::Text("Time: %.2f", Time::getTime());
-                ImGui::Text("Simulated time: %.2f", Time::getSimulatedTime());
-                // if (ImGui::DragFloat("Simulation Speed", &m_SimulationSpeed, 0.02f, 0.1f, 20.0f)) {
-                if (ImGui::SliderFloat("Simulation Speed", &m_SimulationSpeed, 0.1f, 20.0f)) {
-                    Time::setTimeScale(m_SimulationSpeed);
-                }
-
-                ImGui::EndTabItem();
-            }
-
-            if (ImGui::BeginTabItem("Renderer")) {
-                m_Renderer->debug();
-                ImGui::EndTabItem();
-            }
-
-            if (ImGui::BeginTabItem("Scene")) {
-                if (ImGui::Button("Reload Scene")) {
-                    m_SceneManager.reloadScene();
-                }
-
-                static bool keepCameraState = m_SceneManager.getKeepCameraState();
-                if (ImGui::Checkbox("Keep Camera State", &keepCameraState)) {
-                    m_SceneManager.keepCameraState(keepCameraState);
-                }
-                ImGui::EndTabItem();
-            }
-
-            // if (ImGui::BeginTabItem("App")) {
-            //     m_App->onImGuiRender();
-            //     ImGui::EndTabItem();
-            // }
-
-            ImGui::EndTabBar();
-        }
-
+        onImGuiRender();
         m_App->onImGuiRender();
-
-        ImGui::End();
     }
-
     m_ImGuiLayer.endFrame();
 }
 
 void Engine::onWindowResize(int width, int height) {
     // Update projection matrix (aspect ratio)
     glm::vec2 fbSize = m_Window->getSize();
-    glViewport(0, 0, fbSize.x, fbSize.y);
+    m_Renderer->setViewport(0, 0, fbSize.x, fbSize.y);
+
     m_SceneManager.getScene().getCamera()->onWindowResize(fbSize.x, fbSize.y);
     m_SceneManager.getScene().getCamera()->updateView();
 }
@@ -141,6 +101,62 @@ void Engine::onWindowResize(int width, int height) {
 void Engine::shutdown() {
     m_ImGuiLayer.shutdown();
     m_Window.reset();
+}
+
+void Engine::onImGuiRender() {
+    ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Once);
+    ImGui::Begin("ZkEngine");
+
+    ImGui::Text(
+        "Engine average %.3f ms/frame (%.1f FPS)",
+        1000.0f / ImGui::GetIO().Framerate,
+        ImGui::GetIO().Framerate);
+
+    if (ImGui::BeginTabBar("##tabs", ImGuiTabBarFlags_None)) {
+        if (ImGui::BeginTabItem("Time")) {
+            ImGui::Text("Time: %.2f", Time::getTime());
+            ImGui::Text("Simulated time: %.2f", Time::getSimulatedTime());
+            if (ImGui::SliderFloat("Simulation Speed", &m_SimulationSpeed, 0.1f, 20.0f)) {
+                Time::setTimeScale(m_SimulationSpeed);
+            }
+
+            ImGui::EndTabItem();
+        }
+
+        if (ImGui::BeginTabItem("Renderer")) {
+            m_Renderer->debug();
+            ImGui::EndTabItem();
+        }
+
+        if (ImGui::BeginTabItem("Scene")) {
+            ImGui::Text(
+                "Camera Position: %.2f, %.2f, %.2f",
+                m_SceneManager.getScene().getCamera()->getPosition().x,
+                m_SceneManager.getScene().getCamera()->getPosition().y,
+                m_SceneManager.getScene().getCamera()->getPosition().z);
+            if (ImGui::Button("Reload Scene")) {
+                m_SceneManager.reloadScene();
+            }
+
+            static bool keepCameraState = m_SceneManager.getKeepCameraState();
+            if (ImGui::Checkbox("Keep Camera State", &keepCameraState)) {
+                m_SceneManager.keepCameraState(keepCameraState);
+            }
+
+            m_SceneManager.getScene().getLightSystem().debug();
+
+            ImGui::EndTabItem();
+        }
+
+        // if (ImGui::BeginTabItem("App")) {
+        //     m_App->onImGuiRender();
+        //     ImGui::EndTabItem();
+        // }
+
+        ImGui::EndTabBar();
+    }
+
+    ImGui::End();
 }
 
 } // namespace zk

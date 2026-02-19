@@ -31,14 +31,14 @@ ModelObject::ModelObject(std::shared_ptr<Model> model, std::shared_ptr<Shader> s
 
 ModelObject::~ModelObject() {}
 
-void ModelObject::draw(const glm::mat4& viewProj) const {
+void ModelObject::draw() const {
     const auto& meshes = m_Model->getMeshes();
 
     for (size_t i = 0; i < m_MeshIndices.size(); i++) {
         const auto& meshData = meshes[m_MeshIndices[i]];
         std::shared_ptr<Material> material = m_Materials[i];
 
-        material->bind(viewProj, transform.getMatrix());
+        material->bind(transform.getMatrix());
 
         // Set color if no texture or for tinting
         if (!m_HasTexture[i]) {

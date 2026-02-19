@@ -10,6 +10,11 @@ struct CameraState {
     float pitch;
 };
 
+// NOTE:
+// Make a UBO for this 
+// - bind 0: Camera
+// - bind 1: Lights
+// - bind 2: Materials
 class Camera3D {
   public:
     CameraState getState() const { return {m_Position, m_Yaw, m_Pitch}; }
@@ -29,6 +34,9 @@ class Camera3D {
     glm::vec3 getFront() const { return m_Front; }
 
     void setFOV(float fov);
+
+    glm::mat4 getView() const { return m_View; }
+    glm::mat4 getProjection() const { return m_Projection; }
 
     glm::mat4 getViewProjection() const;
 
@@ -58,7 +66,7 @@ class Camera3D {
     float m_Pitch = 0.0f; // up/down
 
     float m_Sensitivity = 0.1f;
-    float m_Speed = 60.0f;
+    float m_Speed = 10.0f;
 
     glm::vec3 m_Front = glm::vec3(0.0f, 0.0f, -1.0f);
     glm::vec3 m_Up = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -67,6 +75,7 @@ class Camera3D {
     glm::vec3 m_Forward;
 
     float m_FOV = 45.0f;
+    float m_Zfar = 1000.0f;
 
     // Mouse
     bool firstMouse = true;

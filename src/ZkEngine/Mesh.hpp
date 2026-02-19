@@ -29,7 +29,8 @@ class Mesh {
 
     IndexBuffer& getIndexBuffer() const;
 
-    bool isTriangle() const { return m_Indices.size() % 3 == 0; }
+    void setTriangle(bool isTriangle) { m_IsTriangle = isTriangle; }
+    bool isTriangle() const { return m_IsTriangle; }
 
     void updateVertices(const glm::vec3& p1, const glm::vec3& p2);
 
@@ -42,6 +43,8 @@ class Mesh {
 
     std::vector<Vertex> m_Vertices;
     std::vector<uint32_t> m_Indices;
+
+    bool m_IsTriangle = true;
 };
 
 }

@@ -3,6 +3,7 @@
 #include <string>
 #include <unordered_map>
 
+#include "ZkEngine/Scene/Lights.hpp"
 #include "glm/ext/matrix_float4x4.hpp"
 
 namespace zk {
@@ -26,6 +27,10 @@ class Shader {
     void setUniform4fv(const std::string& name, const glm::vec4& value);
 
     void setUniformMat4f(const std::string& name, const glm::mat4& matrix);
+
+    void setLightUniform(const std::string& name, const PointLight& light, const glm::vec3& position);
+    void setLightUniform(const std::string& name, const DirectionalLight& light);
+    void setLightUniform(const std::string& name, const SpotLight& light, const glm::vec3& position);
 
    private:
     std::string readFile(const std::string& filepath);

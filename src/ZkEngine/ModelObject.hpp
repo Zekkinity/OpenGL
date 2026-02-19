@@ -11,7 +11,7 @@ class ModelObject {
     ModelObject(std::shared_ptr<Model> model, std::shared_ptr<Shader> shader);
     ~ModelObject();
 
-    void draw(const glm::mat4& viewProj) const;
+    void draw() const;
 
     Transform3D transform;
 

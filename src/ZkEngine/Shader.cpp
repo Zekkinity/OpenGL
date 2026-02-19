@@ -111,6 +111,36 @@ void Shader::setUniform4fv(const std::string& name, const glm::vec4& value) {
     glUniform4fv(getUniformLocation(name), 1, &value[0]);
 }
 
+void Shader::setLightUniform(const std::string& name, const PointLight& light, const glm::vec3& position) {
+    setUniform3f(name + ".position", position.x, position.y, position.z);
+    setUniform3f(name + ".ambient", light.ambient.x, light.ambient.y, light.ambient.z);
+    setUniform3f(name + ".diffuse", light.diffuse.x, light.diffuse.y, light.diffuse.z);
+    setUniform3f(name + ".specular", light.specular.x, light.specular.y, light.specular.z);
+    setUniform1f(name + ".constant", light.constant);
+    setUniform1f(name + ".linear", light.linear);
+    setUniform1f(name + ".quadratic", light.quadratic);
+}
+
+void Shader::setLightUniform(const std::string& name, const DirectionalLight& light) {
+    setUniform3f(name + ".direction", light.direction.x, light.direction.y, light.direction.z);
+    setUniform3f(name + ".ambient", light.ambient.x, light.ambient.y, light.ambient.z);
+    setUniform3f(name + ".diffuse", light.diffuse.x, light.diffuse.y, light.diffuse.z);
+    setUniform3f(name + ".specular", light.specular.x, light.specular.y, light.specular.z);
+}
+
+void Shader::setLightUniform(const std::string& name, const SpotLight& light, const glm::vec3& position) {
+    setUniform3f(name + ".position", position.x, position.y, position.z);
+    setUniform3f(name + ".direction", light.direction.x, light.direction.y, light.direction.z);
+    setUniform1f(name + ".cutOff", light.cutOff);
+    setUniform1f(name + ".outerCutOff", light.outerCutOff);
+    setUniform3f(name + ".ambient", light.ambient.x, light.ambient.y, light.ambient.z);
+    setUniform3f(name + ".diffuse", light.diffuse.x, light.diffuse.y, light.diffuse.z);
+    setUniform3f(name + ".specular", light.specular.x, light.specular.y, light.specular.z);
+    setUniform1f(name + ".constant", light.constant);
+    setUniform1f(name + ".linear", light.linear);
+    setUniform1f(name + ".quadratic", light.quadratic);
+}
+
 int Shader::getUniformLocation(const std::string& name) {
     // This will cache the uniform location so we dont have to look it up every time
     auto it = m_UniformLocationCache.find(name);

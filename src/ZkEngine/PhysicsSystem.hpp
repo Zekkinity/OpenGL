@@ -7,7 +7,6 @@
 namespace zk {
 
 class Camera3D;
-struct Ray;
 
 class PhysicsSystem {
    public:
@@ -21,10 +20,6 @@ class PhysicsSystem {
 
     void debug();
     void drawDebugVectors() const;
-
-   private:
-    Ray makeRayFromScreenCenter(int width, int height, Camera3D& camera);
-    bool raySphereIntersect(const Ray& ray, const glm::vec3& center, float radius, float& outT);
 
    private:
     static constexpr float SPHERE_MASS = 0.250f;

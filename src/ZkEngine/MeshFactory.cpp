@@ -1,5 +1,4 @@
 #include "MeshFactory.hpp"
-#include "ZkEngine/RenderObject.hpp"
 #include "glm/ext/scalar_constants.hpp"
 
 namespace zk::MeshFactory {
@@ -7,8 +6,8 @@ namespace zk::MeshFactory {
 std::shared_ptr<Mesh> createLine() {
     std::vector<Vertex> vertices = {
         // position              normal           uv
-        {{-5.0f, -5.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},  // 0
-        {{5.0f, -5.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},   // 1
+        {{-0.5, -0.5, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}}, // 0
+        {{0.5, -0.5, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},  // 1
     };
 
     std::vector<uint32_t> indices = {0, 1};
@@ -19,14 +18,18 @@ std::shared_ptr<Mesh> createLine() {
 std::shared_ptr<Mesh> createTriangle() {
     std::vector<Vertex> vertices = {
         // position              normal           uv
-        {{-5.0f, -5.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},  // 0
-        {{5.0f, -5.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},   // 1
-        {{0.0f, 5.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.5f, 1.0f}},    // 2
+        {{-0.5, -0.5, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}}, // 0
+        {{0.5, -0.5, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},  // 1
+        {{0.0f, 0.5, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.5f, 1.0f}},  // 2
     };
 
     std::vector<uint32_t> indices = {
-        0, 1, 2, // Front
-        2,1,0 // Back 
+        0,
+        1,
+        2, // Front
+        2,
+        1,
+        0 // Back
     };
 
     return std::make_shared<Mesh>(vertices, indices);
@@ -35,15 +38,19 @@ std::shared_ptr<Mesh> createTriangle() {
 std::shared_ptr<Mesh> createQuad() {
     std::vector<Vertex> vertices = {
         // position              normal           uv
-        {{-5.0f, -5.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},  // 0
-        {{5.0f, -5.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},   // 1
-        {{5.0f, 5.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},    // 2
-        {{-5.0f, 5.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},   // 3
+        {{-0.5, -0.5, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}}, // 0
+        {{0.5, -0.5, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},  // 1
+        {{0.5, 0.5, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},   // 2
+        {{-0.5, 0.5, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},  // 3
     };
 
     std::vector<uint32_t> indices = {
-        0, 1, 2,  //
-        2, 3, 0   //
+        0,
+        1,
+        2, //
+        2,
+        3,
+        0 //
     };
 
     return std::make_shared<Mesh>(vertices, indices);
@@ -54,59 +61,90 @@ std::shared_ptr<Mesh> createCube() {
     // This cube will work for lighting
     std::vector<Vertex> vertices = {
         // FRONT (+Z)
-        {{-5, -5, 5}, {0, 0, 1}, {0, 0}},
-        {{5, -5, 5}, {0, 0, 1}, {1, 0}},
-        {{5, 5, 5}, {0, 0, 1}, {1, 1}},
-        {{-5, 5, 5}, {0, 0, 1}, {0, 1}},
+        {{-0.5, -0.5, 0.5}, {0, 0, 1}, {0, 0}},
+        {{0.5, -0.5, 0.5}, {0, 0, 1}, {1, 0}},
+        {{0.5, 0.5, 0.5}, {0, 0, 1}, {1, 1}},
+        {{-0.5, 0.5, 0.5}, {0, 0, 1}, {0, 1}},
 
         // BACK (-Z)
-        {{5, -5, -5}, {0, 0, -1}, {0, 0}},
-        {{-5, -5, -5}, {0, 0, -1}, {1, 0}},
-        {{-5, 5, -5}, {0, 0, -1}, {1, 1}},
-        {{5, 5, -5}, {0, 0, -1}, {0, 1}},
+        {{0.5, -0.5, -0.5}, {0, 0, -1}, {0, 0}},
+        {{-0.5, -0.5, -0.5}, {0, 0, -1}, {1, 0}},
+        {{-0.5, 0.5, -0.5}, {0, 0, -1}, {1, 1}},
+        {{0.5, 0.5, -0.5}, {0, 0, -1}, {0, 1}},
 
         // LEFT (-X)
-        {{-5, -5, -5}, {-1, 0, 0}, {0, 0}},
-        {{-5, -5, 5}, {-1, 0, 0}, {1, 0}},
-        {{-5, 5, 5}, {-1, 0, 0}, {1, 1}},
-        {{-5, 5, -5}, {-1, 0, 0}, {0, 1}},
+        {{-0.5, -0.5, -0.5}, {-1, 0, 0}, {0, 0}},
+        {{-0.5, -0.5, 0.5}, {-1, 0, 0}, {1, 0}},
+        {{-0.5, 0.5, 0.5}, {-1, 0, 0}, {1, 1}},
+        {{-0.5, 0.5, -0.5}, {-1, 0, 0}, {0, 1}},
 
         // RIGHT (+X)
-        {{5, -5, 5}, {1, 0, 0}, {0, 0}},
-        {{5, -5, -5}, {1, 0, 0}, {1, 0}},
-        {{5, 5, -5}, {1, 0, 0}, {1, 1}},
-        {{5, 5, 5}, {1, 0, 0}, {0, 1}},
+        {{0.5, -0.5, 0.5}, {1, 0, 0}, {0, 0}},
+        {{0.5, -0.5, -0.5}, {1, 0, 0}, {1, 0}},
+        {{0.5, 0.5, -0.5}, {1, 0, 0}, {1, 1}},
+        {{0.5, 0.5, 0.5}, {1, 0, 0}, {0, 1}},
 
         // TOP (+Y)
-        {{-5, 5, 5}, {0, 1, 0}, {0, 0}},
-        {{5, 5, 5}, {0, 1, 0}, {1, 0}},
-        {{5, 5, -5}, {0, 1, 0}, {1, 1}},
-        {{-5, 5, -5}, {0, 1, 0}, {0, 1}},
+        {{-0.5, 0.5, 0.5}, {0, 1, 0}, {0, 0}},
+        {{0.5, 0.5, 0.5}, {0, 1, 0}, {1, 0}},
+        {{0.5, 0.5, -0.5}, {0, 1, 0}, {1, 1}},
+        {{-0.5, 0.5, -0.5}, {0, 1, 0}, {0, 1}},
 
         // BOTTOM (-Y)
-        {{-5, -5, -5}, {0, -1, 0}, {0, 0}},
-        {{5, -5, -5}, {0, -1, 0}, {1, 0}},
-        {{5, -5, 5}, {0, -1, 0}, {1, 1}},
-        {{-5, -5, 5}, {0, -1, 0}, {0, 1}},
+        {{-0.5, -0.5, -0.5}, {0, -1, 0}, {0, 0}},
+        {{0.5, -0.5, -0.5}, {0, -1, 0}, {1, 0}},
+        {{0.5, -0.5, 0.5}, {0, -1, 0}, {1, 1}},
+        {{-0.5, -0.5, 0.5}, {0, -1, 0}, {0, 1}},
     };
 
-    std::vector<uint32_t> indices = {// Front
-                                     0, 1, 2, 2, 3, 0,
+    std::vector<uint32_t> indices = {
+        // Front
+        0,
+        1,
+        2,
+        2,
+        3,
+        0,
 
-                                     // Back
-                                     4, 5, 6, 6, 7, 4,
+        // Back
+        4,
+        5,
+        6,
+        6,
+        7,
+        4,
 
-                                     // Left
-                                     8, 9, 10, 10, 11, 8,
+        // Left
+        8,
+        9,
+        10,
+        10,
+        11,
+        8,
 
-                                     // Right
-                                     12, 13, 14, 14, 15, 12,
+        // Right
+        12,
+        13,
+        14,
+        14,
+        15,
+        12,
 
-                                     // Top
-                                     16, 17, 18, 18, 19, 16,
+        // Top
+        16,
+        17,
+        18,
+        18,
+        19,
+        16,
 
-                                     // Bottom
-                                     20, 21, 22, 22, 23, 20};
+        // Bottom
+        20,
+        21,
+        22,
+        22,
+        23,
+        20};
 
     return std::make_shared<Mesh>(vertices, indices);
 }
@@ -119,7 +157,7 @@ std::shared_ptr<Mesh> createSphere(float radius, int sectorCount, int stackCount
     float stackStep = glm::pi<float>() / stackCount;
 
     for (int i = 0; i <= stackCount; ++i) {
-        float stackAngle = glm::pi<float>() / 2.0f - i * stackStep;  // +pi/2 to -pi/2
+        float stackAngle = glm::pi<float>() / 2.0f - i * stackStep; // +pi/2 to -pi/2
         float xy = radius * cos(stackAngle);
         float y = radius * sin(stackAngle);
 
@@ -164,4 +202,33 @@ std::shared_ptr<Mesh> createSphere(float radius, int sectorCount, int stackCount
     return std::make_shared<Mesh>(vertices, indices);
 }
 
-}  // namespace MeshFactory
+std::shared_ptr<Mesh> createGrid(int halfSize, float spacing) {
+    std::vector<Vertex> vertices;
+    std::vector<uint32_t> indices;
+
+    uint32_t index = 0;
+
+    for (int i = -halfSize; i <= halfSize; i++) {
+        float p = i * spacing;
+
+        // Line parallel to X (along Z)
+        vertices.push_back({{-halfSize * spacing, 0.0f, p}, {0, 1, 0}, {}});
+        vertices.push_back({{halfSize * spacing, 0.0f, p}, {0, 1, 0}, {}});
+
+        indices.push_back(index++);
+        indices.push_back(index++);
+
+        // Line parallel to Z (along X)
+        vertices.push_back({{p, 0.0f, -halfSize * spacing}, {0, 1, 0}, {}});
+        vertices.push_back({{p, 0.0f, halfSize * spacing}, {0, 1, 0}, {}});
+
+        indices.push_back(index++);
+        indices.push_back(index++);
+    }
+
+    auto mesh = std::make_shared<Mesh>(vertices, indices);
+    mesh->setTriangle(false);
+    return mesh;
+}
+
+} // namespace zk::MeshFactory

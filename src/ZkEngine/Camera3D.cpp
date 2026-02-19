@@ -90,7 +90,8 @@ void Camera3D::updateView() {
 
 // Update projection matrix
 void Camera3D::updateProjection(float width, float height) {
-    m_Projection = glm::perspective(glm::radians(m_FOV), width / height, 0.1f, 5000.0f);
+    // m_Projection = glm::perspective(glm::radians(m_FOV), width / height, 0.1f, 5000.0f);
+    m_Projection = glm::perspective(glm::radians(m_FOV), width / height, 0.1f, m_Zfar);
 }
 
 glm::mat4 Camera3D::getViewProjection() const {
@@ -124,6 +125,10 @@ void Camera3D::debug() {
     }
 
     if (ImGui::SliderFloat("FOV", &m_FOV, 1.0f, 90.0f)) {
+        updateProjection(1280.0f, 720.0f);
+    }
+
+    if (ImGui::SliderFloat("Zfar", &m_Zfar, 1.0f, 10000.0f)) {
         updateProjection(1280.0f, 720.0f);
     }
 }

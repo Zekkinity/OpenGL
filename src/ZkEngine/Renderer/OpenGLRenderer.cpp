@@ -1,5 +1,6 @@
 #include "OpenGLRenderer.hpp"
 
+#include "ZkEngine/CameraUBO.hpp"
 #include "imgui.h"
 
 #include <iostream>
@@ -56,6 +57,19 @@ void OpenGLRenderer::init() {
     int nrAttributes;
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
     std::cout << "Maximum nr of vertex attributes supported: " << nrAttributes << '\n';
+
+    glGenVertexArrays(1, &m_LineVAO);
+    glGenBuffers(1, &m_LineVBO);
+
+    glBindVertexArray(m_LineVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_LineVBO);
+
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
+
+    glBindVertexArray(0);
+
+    m_CameraUBO = std::make_unique<UniformBuffer>(sizeof(CameraUBO), 0);
 }
 
 void OpenGLRenderer::update() {
@@ -77,7 +91,7 @@ void OpenGLRenderer::beginFrame() const {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void OpenGLRenderer::submit(const RenderObject& obj, const Camera3D& camera) {
+void OpenGLRenderer::submit(const RenderObject& obj) {
     if (!obj.mesh || !obj.material)
         return;
 
@@ -86,15 +100,34 @@ void OpenGLRenderer::submit(const RenderObject& obj, const Camera3D& camera) {
             obj.mesh,
             obj.material,
             obj.transform.getMatrix(),
-            camera.getViewProjection(),
             obj.color,
             obj.colorOverride,
         });
 }
 
+void OpenGLRenderer::submit(const RenderObject& obj, const Transform3D& transform) {
+    if (!obj.mesh || !obj.material)
+        return;
+
+    m_DrawQueue.emplace_back(
+        DrawCommand{
+            obj.mesh,
+            obj.material,
+            transform.getMatrix(),
+            obj.color,
+            obj.colorOverride,
+        });
+}
+
+
 void OpenGLRenderer::endFrame() {
     for (const auto& cmd : m_DrawQueue) {
-        cmd.material->bind(cmd.viewProj, cmd.model);
+        if (m_DisableTextures) {
+            cmd.material->setDisableTextures(true);
+        } else {
+            cmd.material->setDisableTextures(false);
+        }
+        cmd.material->bind(cmd.model);
 
         if (cmd.colorOverride) {
             cmd.material->getShader().setUniform4fv("u_Color", cmd.color);
@@ -110,13 +143,37 @@ void OpenGLRenderer::endFrame() {
                 GL_LINES, cmd.mesh->getIndexBuffer().getCount(), GL_UNSIGNED_INT, nullptr);
         }
 
-        cmd.mesh->unbind();
-        cmd.material->unbind();
+        // cmd.mesh->unbind();
+        // cmd.material->unbind();
 
         m_DrawCallCount++;
     }
 
     m_DrawQueue.clear();
+
+    glBindVertexArray(m_LineVAO);
+
+    for (const auto& cmd : m_LineQueue) {
+
+        glBindBuffer(GL_ARRAY_BUFFER, m_LineVBO);
+
+        glBufferData(
+            GL_ARRAY_BUFFER,
+            cmd.points.size() * sizeof(glm::vec3),
+            cmd.points.data(),
+            GL_DYNAMIC_DRAW);
+
+        // glDrawArrays(GL_LINE_STRIP, 0, cmd.points.size());
+        glDrawArrays(GL_LINES, 0, cmd.points.size());
+
+        m_DrawCallCount++;
+    }
+
+    m_LineQueue.clear();
+}
+
+void OpenGLRenderer::drawLine(const std::vector<glm::vec3>& pts) {
+    m_LineQueue.emplace_back(LineStripCmd{pts});
 }
 
 void OpenGLRenderer::setClearColor(const glm::vec4& color) {
@@ -128,10 +185,22 @@ void OpenGLRenderer::setClearColor(const glm::vec4& color) {
     glClearColor(color.r, color.g, color.b, color.a);
 }
 
-void OpenGLRenderer::debug() {
-    ImGui::ColorEdit4("Clear Color", &m_ClearColor[0]);
-    ImGui::Checkbox("Wireframe", &m_WireFrame);
-    ImGui::Text("Draw Calls: %d", m_DrawCallCount);
+void OpenGLRenderer::setViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height) {
+    glViewport(x, y, width, height);
 }
 
+void OpenGLRenderer::updateCamera(const Camera3D& camera) {
+    CameraUBO data;
+    data.viewProj = camera.getViewProjection();
+    data.viewPos = glm::vec4(camera.getPosition(), 1.0f);
+    m_CameraUBO->setData(&data, sizeof(CameraUBO));
 }
+
+void OpenGLRenderer::debug() {
+    ImGui::Text("Draw Calls: %d", m_DrawCallCount);
+    ImGui::ColorEdit4("Clear Color", &m_ClearColor[0]);
+    ImGui::Checkbox("Wireframe", &m_WireFrame);
+    ImGui::Checkbox("Disable Textures", &m_DisableTextures);
+}
+
+} // namespace zk
