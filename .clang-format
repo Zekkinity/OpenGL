@@ -48,6 +48,10 @@ ReferenceAlignment: Left
 # Includes
 SortIncludes: false
 
+BreakBeforeBraces: Custom
+BraceWrapping:
+  BeforeElse: true
+
 # Namespace formatting
 
 # Template formatting

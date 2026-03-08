@@ -10,7 +10,7 @@ class Application {
 
     virtual void onInit() {}
     virtual void onUpdate(float dt) {}
-    virtual void onRender(Core::RendererBackend& renderer) {}
+    virtual void onRender(RendererBackend& renderer) {}
     virtual void onImGuiRender() {}
 };
 

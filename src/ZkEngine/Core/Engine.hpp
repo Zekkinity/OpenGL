@@ -6,6 +6,7 @@
 
 #include "ZkEngine/ImGui/ImGuiLayer.hpp"
 #include "ZkEngine/Scene/SceneManager.hpp"
+#include "ZkEngine/AssetManager/AssetManager.hpp"
 
 namespace zk {
 
@@ -17,9 +18,10 @@ class Engine {
     void run(Application& app);
     static Engine* Get() { return s_Instance; }
 
-    Core::RendererBackend& getRenderer() { return *m_Renderer; }
+    RendererBackend& getRenderer() { return *m_Renderer; }
     SceneManager& getSceneManager() { return m_SceneManager; }
     Window& getWindow() { return *m_Window; }
+    AssetManager& getAssetManager() { return *m_AssetManager; }
 
     void toggleDebugWindow() { m_HideDebugWindow = !m_HideDebugWindow; }
 
@@ -39,9 +41,11 @@ class Engine {
 
     Application* m_App = nullptr;
 
-    std::unique_ptr<Core::RendererBackend> m_Renderer;
+    std::unique_ptr<RendererBackend> m_Renderer;
     std::unique_ptr<Window> m_Window;
     SceneManager m_SceneManager;
+
+    std::unique_ptr<AssetManager> m_AssetManager;
 
     ImGuiLayer m_ImGuiLayer;
 

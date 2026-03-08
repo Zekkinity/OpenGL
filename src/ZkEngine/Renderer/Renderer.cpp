@@ -5,7 +5,7 @@
 
 namespace zk {
 
-static Core::RendererBackend& Backend() {
+static RendererBackend& Backend() {
     return Engine::Get()->getRenderer();
 }
 

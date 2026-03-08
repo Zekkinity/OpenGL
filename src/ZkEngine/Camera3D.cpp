@@ -113,6 +113,8 @@ void Camera3D::setFirstMouse(bool first) {
 void Camera3D::debug() {
     ImGui::Text("Camera");
 
+    ImGui::SliderFloat("Speed", &m_Speed, 0.0f, 1000.0f);
+
     if (ImGui::SliderFloat3("Position", &m_Position.x, -300.0f, 300.0f)) {
         updateView();
     }

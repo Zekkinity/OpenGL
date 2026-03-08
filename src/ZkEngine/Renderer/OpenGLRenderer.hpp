@@ -1,19 +1,24 @@
 #pragma once
 
 #include "ZkEngine/Renderer/RendererBackend.hpp"
-#include "ZkEngine/UniformBuffer.hpp"
+#include "ZkEngine/Renderer/API/OpenGL/UniformBuffer.hpp"
 
 namespace zk {
 
-class OpenGLRenderer : public Core::RendererBackend {
+enum class RenderMode {
+    Forward,
+    Deferred,
+    Wireframe,
+};
+
+class OpenGLRenderer : public RendererBackend {
   public:
     void init() override;
 
     void update() override;
 
     void beginFrame() const override;
-    void submit(const RenderObject& obj) override;
-    void submit(const RenderObject& obj, const Transform3D& transform) override;
+    void submit(const RenderCommand& cmd) override;
     void endFrame() override;
 
     void drawLine(const std::vector<glm::vec3>& pts) override;
@@ -25,24 +30,22 @@ class OpenGLRenderer : public Core::RendererBackend {
     void updateCamera(const Camera3D& camera) override;
 
   private:
-    struct DrawCommand {
-        std::shared_ptr<Mesh> mesh;
-        std::shared_ptr<Material> material;
-        glm::mat4 model;
-        glm::vec4 color;
-        bool colorOverride;
-    };
+    void sortTransparentQueue();
+    void draw(const RenderCommand& cmd);
 
-    std::vector<DrawCommand> m_DrawQueue;
+  private:
+    std::vector<RenderCommand> m_OpaqueQueue;
+    std::vector<RenderCommand> m_TransparentQueue;
 
     bool m_Debug = true;
 
     float m_ClearColor[4] = {0.0f, 0.0f, 0.0f, 1.0f};
-    bool m_WireFrame = false;
+
+    RenderMode m_RenderMode = RenderMode::Forward;
 
     int m_DrawCallCount = 0;
 
-    bool m_DisableTextures = false;
+    bool m_EnableTextures = true;
 
     uint32_t m_LineVAO = 0, m_LineVBO = 0;
     struct LineStripCmd {

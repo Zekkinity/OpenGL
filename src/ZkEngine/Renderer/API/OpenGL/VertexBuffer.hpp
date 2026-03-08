@@ -1,10 +1,14 @@
 #pragma once
 
+#include "ZkEngine/Renderer/API/OpenGL/Vertex.hpp"
+#include <span>
+
 namespace zk {
 
 class VertexBuffer {
   public:
-    VertexBuffer(const void* data, unsigned int size);
+    VertexBuffer(std::span<const Vertex> data);
+
     ~VertexBuffer();
 
     void bind() const;

@@ -2,12 +2,12 @@
 
 namespace zk {
 
-class Scene;
+class Registry;
 class Shader;
 
 class LightSystem {
   public:
-    LightSystem(Scene& scene);
+    LightSystem(Registry& registry);
     ~LightSystem();
 
     void upload(Shader& shader);
@@ -15,7 +15,7 @@ class LightSystem {
     void debug();
 
   private:
-    Scene& m_Scene;
+    Registry& m_Registry;
 };
 
 } // namespace zk

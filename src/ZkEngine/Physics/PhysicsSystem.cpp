@@ -1,10 +1,9 @@
 #include "PhysicsSystem.hpp"
 
-#include <GLFW/glfw3.h>
-#include "Camera3D.hpp"
-#include "Input/Input.hpp"
+#include "ZkEngine/Camera3D.hpp"
+#include "ZkEngine/Input/Input.hpp"
 #include "imgui.h"
-#include "Utils/Time.hpp"
+#include "ZkEngine/Utils/Time.hpp"
 
 #include "ZkEngine/RayCast.hpp"
 
@@ -29,12 +28,12 @@ void PhysicsSystem::update(RenderObject& object, Camera3D& camera, float dt) {
         Utils::Ray ray = Utils::makeRayFromScreenCenter(1920, 1080, camera);
 
         float t;
-        if (Utils::raySphereIntersect(ray, object.transform.position, 2.0f, t)) {
-            glm::vec3 hitPoint = ray.origin + ray.direction * t;
-            glm::vec3 contactOffset = hitPoint - object.transform.position;
-
-            applyHit(ray.direction, contactOffset);
-        }
+        // if (Utils::raySphereIntersect(ray, object.transform.position, 2.0f, t)) {
+        //     glm::vec3 hitPoint = ray.origin + ray.direction * t;
+        //     glm::vec3 contactOffset = hitPoint - object.transform.position;
+        //
+        //     applyHit(ray.direction, contactOffset);
+        // }
     }
 
     float speed = glm::length(m_Velocity);
@@ -57,11 +56,11 @@ void PhysicsSystem::update(RenderObject& object, Camera3D& camera, float dt) {
     m_Velocity += acceleration * dt;
 
     // Y: 0
-    if (object.transform.position.y < 0.0f) {
+    // if (object.transform.position.y < 0.0f) {
         const glm::vec3 floorNormal = {0.0f, 1.0f, 0.0f};
         const float floorHeight = 0.0f;
 
-        object.transform.position.y = 0.0f;
+        // object.transform.position.y = 0.0f;
 
         float vn = glm::dot(m_Velocity, floorNormal);
         glm::vec3 vN = vn * floorNormal;
@@ -86,8 +85,8 @@ void PhysicsSystem::update(RenderObject& object, Camera3D& camera, float dt) {
         // auto theta = glm::acos((velocity * floorNormal / glm::length(velocity) *
         // glm::length(floorNormal))); float thetaY = glm::degrees(theta.y); std::cout <<
         // "theta.y: " << thetaY << std::endl; velocity.y = velocity.y * -0.7f;
-    }
-    object.transform.position += m_Velocity * dt;
+    // }
+    // object.transform.position += m_Velocity * dt;
 
     float angle = glm::length(m_AngularVelocity) * dt;
     if (angle > 0.0f) {
@@ -95,7 +94,7 @@ void PhysicsSystem::update(RenderObject& object, Camera3D& camera, float dt) {
         glm::quat dq = glm::angleAxis(angle, axis);
         m_Orientation = glm::normalize(m_Orientation * dq);
     }
-    object.transform.rotationQuat = m_Orientation;
+    // object.transform.rotationQuat = m_Orientation;
 
     float angularDamping = 0.2f; // per second-ish
     m_AngularVelocity *= exp(-angularDamping * dt);
@@ -145,7 +144,7 @@ void PhysicsSystem::applyHit(const glm::vec3& hitDir, const glm::vec3& contactOf
 void PhysicsSystem::applyGravity(RenderObject& object, float dt) {
     glm::vec3 gravityAcc = {0.0f, -GRAVITY, 0.0f};
     m_Velocity += gravityAcc * dt;
-    object.transform.position += m_Velocity;
+    // object.transform.position += m_Velocity;
 }
 
 void PhysicsSystem::debug() {

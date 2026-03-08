@@ -1,56 +1,70 @@
 #include "Scene.hpp"
+#include "ZkEngine/Model.hpp"
 
-#include "ZkEngine/Scene/Entity.hpp"
+#include "ZkEngine/Core/Base.hpp"
+
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/norm.hpp>
 
 namespace zk {
 
-Scene::Scene() : m_LightSystem(*this) {
+Scene::Scene() : m_LightSystem(m_Registry) {
     m_Camera = std::make_unique<Camera3D>();
 }
 
-Scene::~Scene() {
-    m_Renderers.clear();
-    m_Transforms.clear();
-}
+Scene::~Scene() {}
 
 void Scene::init() {}
 
-void Scene::update(float dt) {}
-
-Entity Scene::createEntity() {
-    uint32_t id = m_NextEntityID++;
-    Entity entity(id, this);
-    return entity;
-}
-
-void Scene::destroyEntity(EntityID id) {
-    m_Transforms.erase(id);
-    m_Renderers.erase(id);
-}
-
-void Scene::addRenderObject(std::unique_ptr<RenderObject> renderObject) {
-    m_Objects.push_back(std::move(renderObject));
-}
-
-void Scene::clearObjects() {
-    m_Objects.clear();
-}
-
-// void Scene::submit(Core::RendererBackend& renderer) const {
-//     for (auto& [entity, renderObject] : m_Renderers) {
-//         renderer.submit(renderObject, *m_Camera);
-//     }
-// }
-
-void Scene::submit(Core::RendererBackend& renderer) const {
-    for (auto& [entity, renderObject] : m_Renderers) {
-        if (!hasComponent<Transform3D>(entity)) {
+// Manage all rigid bodies
+void Scene::update(float dt) {
+    for (auto& [entity, rigidBody] : m_Registry.getStorage<RigidBody>()) {
+        if (!m_Registry.hasComponent<Transform3D>(entity)) {
             continue;
         }
 
-        auto& transform = getComponent<Transform3D>(entity);
+        auto& transform = m_Registry.getComponent<Transform3D>(entity);
 
-        renderer.submit(renderObject, transform);
+        // rigidBody.update(dt);
+        transform.position = rigidBody.position;
+        transform.rotation = rigidBody.rotation;
+    }
+
+    // m_PhysicsSystem.update(m_Registry, *m_Camera, dt);
+}
+
+// Manage all renderable objects
+void Scene::submit(RendererBackend& renderer) const {
+    for (auto& [entity, renderObject] : m_Registry.getStorage<RenderObject>()) {
+        if (!m_Registry.hasComponent<Transform3D>(entity)) {
+            ZK_CORE_WARN("No transform");
+            continue;
+        }
+
+        auto& transform = m_Registry.getComponent<Transform3D>(entity);
+
+        RenderCommand cmd;
+        cmd.mesh = renderObject.mesh.get();
+        cmd.material = renderObject.material.get();
+        cmd.modelMatrix = transform.getMatrix();
+        cmd.distanceToCamera = glm::length2(m_Camera->getPosition() - transform.position);
+        renderer.submit(cmd);
+    }
+
+    for (auto& [entity, model] : m_Registry.getStorage<Model>()) {
+        if (!m_Registry.hasComponent<Transform3D>(entity)) {
+            continue;
+        }
+        auto& transform = m_Registry.getComponent<Transform3D>(entity);
+
+        RenderCommand cmd;
+        for (auto& mesh : model.getMeshes()) {
+            cmd.mesh = mesh.mesh.get();
+            cmd.material = mesh.material.get();
+            cmd.modelMatrix = transform.getMatrix();
+
+            renderer.submit(cmd);
+        }
     }
 }
 

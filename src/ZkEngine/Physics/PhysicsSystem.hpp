@@ -1,8 +1,10 @@
 #pragma once
 
-#include "RenderObject.hpp"
 
-#include "glm/ext/vector_float3.hpp"
+#include "ZkEngine/RenderObject.hpp"
+#include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <memory>
 
 namespace zk {
 

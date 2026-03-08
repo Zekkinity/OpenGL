@@ -4,12 +4,12 @@
 
 #include <glm/glm.hpp>
 
+#include "ZkEngine/Renderer/RenderCommand.hpp"
 #include "ZkEngine/Camera3D.hpp"
-#include "ZkEngine/RenderObject.hpp"
-
-namespace zk::Core {
 
 enum class RendererAPI { OpenGL, Vulkan };
+
+namespace zk {
 
 class RendererBackend {
   public:
@@ -20,8 +20,7 @@ class RendererBackend {
     virtual void update() = 0;
 
     virtual void beginFrame() const = 0;
-    virtual void submit(const RenderObject& obj) = 0;
-    virtual void submit(const RenderObject& obj, const Transform3D& transform) {}
+    virtual void submit(const RenderCommand& cmd) = 0;
     virtual void endFrame() = 0;
 
     virtual void setClearColor(const glm::vec4& color) = 0;
@@ -33,6 +32,11 @@ class RendererBackend {
     virtual void updateCamera(const Camera3D& camera) {}
 
     static std::unique_ptr<RendererBackend> create(RendererAPI api);
+
+    static RendererAPI getAPI() { return s_API; }
+
+  private:
+    inline static RendererAPI s_API = RendererAPI::OpenGL;
 };
 
 } // namespace zk::Core

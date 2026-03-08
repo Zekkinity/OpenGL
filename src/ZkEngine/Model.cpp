@@ -1,16 +1,21 @@
 #include "Model.hpp"
+#include "ZkEngine/Core/Base.hpp"
 
 #include <assimp/Importer.hpp>
-#include <iostream>
+#include <filesystem>
 #include <assimp/postprocess.h>
 
 namespace zk {
 
-Model::Model(const std::string& path) {
+// Model::Model(const std::filesystem::path& path) {
+//     loadModel(path);
+// }
+
+Model::Model(const std::filesystem::path& path, std::shared_ptr<Shader> shader) : m_Shader(shader) {
     loadModel(path);
 }
 
-void Model::loadModel(const std::string& path) {
+void Model::loadModel(const std::filesystem::path& path) {
     Assimp::Importer importer;
 
     const aiScene* scene = importer.ReadFile(
@@ -19,13 +24,20 @@ void Model::loadModel(const std::string& path) {
             aiProcess_JoinIdenticalVertices);
 
     if (!scene || !scene->mRootNode) {
-        std::cerr << "Assimp error: " << importer.GetErrorString() << std::endl;
+        ZK_CORE_ERROR("Assimp failed to load model: {}", importer.GetErrorString());
         return;
     }
 
-    m_Directory = path.substr(0, path.find_last_of('/'));
+    m_Directory = path.parent_path().string();
+    ZK_CORE_DEBUG("Model directory: {}", m_Directory.c_str());
 
+    auto start = std::chrono::high_resolution_clock::now();
     processNode(scene->mRootNode, scene);
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+    ZK_CORE_DEBUG("Model loaded in {}ms", duration.count());
+    // Without Cache: ~24,500ms
+    // With Cache: ~1,700ms
 }
 
 void Model::processNode(aiNode* node, const aiScene* scene) {
@@ -46,7 +58,7 @@ MeshData Model::processMesh(aiMesh* mesh, const aiScene* scene) {
     std::vector<uint32_t> indices;
 
     // vertices
-    for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
+    for (uint32_t i = 0; i < mesh->mNumVertices; i++) {
         Vertex v;
         v.position = {
             mesh->mVertices[i].x,
@@ -60,7 +72,8 @@ MeshData Model::processMesh(aiMesh* mesh, const aiScene* scene) {
                 mesh->mNormals[i].y,
                 mesh->mNormals[i].z,
             };
-        } else {
+        }
+        else {
             v.normal = glm::vec3(0.0f);
         }
 
@@ -69,7 +82,8 @@ MeshData Model::processMesh(aiMesh* mesh, const aiScene* scene) {
                 mesh->mTextureCoords[0][i].x,
                 mesh->mTextureCoords[0][i].y,
             };
-        } else {
+        }
+        else {
             v.texCoords = glm::vec2(0.0f);
         }
 
@@ -77,44 +91,90 @@ MeshData Model::processMesh(aiMesh* mesh, const aiScene* scene) {
     }
 
     // indices
-    for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
+    for (uint32_t i = 0; i < mesh->mNumFaces; i++) {
         const aiFace& face = mesh->mFaces[i];
-        for (unsigned int j = 0; j < face.mNumIndices; j++)
+        for (uint32_t j = 0; j < face.mNumIndices; j++)
             indices.push_back(face.mIndices[j]);
     }
 
     // Material
     MeshData meshData;
-    meshData.mesh = Mesh(vertices, indices);
+    meshData.mesh = std::make_shared<Mesh>(vertices, indices);
     meshData.diffuseColor = glm::vec3(1.0f);
 
     if (mesh->mMaterialIndex >= 0) {
-        aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+        uint32_t materialIndex = mesh->mMaterialIndex;
 
-        std::string diffuseTexturePath = loadMaterialTexture(material, aiTextureType_DIFFUSE);
-        if (!diffuseTexturePath.empty()) {
-            meshData.diffuseTexturePath = diffuseTexturePath;
+        // Check if material is already loaded
+        if (m_MaterialsLoaded.contains(materialIndex)) {
+            // std::cout << "Material already loaded" << std::endl;
+            meshData.material = m_MaterialsLoaded.at(materialIndex);
         }
 
-        aiColor3D color;
-        material->Get(AI_MATKEY_COLOR_DIFFUSE, color);
-        meshData.diffuseColor = glm::vec3(color.r, color.g, color.b);
+        // Load new material
+        else {
+            auto material = std::make_shared<Material>(m_Shader);
+            aiMaterial* aiMaterial = scene->mMaterials[mesh->mMaterialIndex];
+
+            loadTextureType(
+                aiMaterial, aiTextureType_DIFFUSE, [&](std::shared_ptr<Texture> texture) {
+                    material->setDiffuse(texture);
+                });
+
+            loadTextureType(
+                aiMaterial, aiTextureType_SPECULAR, [&](std::shared_ptr<Texture> texture) {
+                    material->setSpecular(texture);
+                });
+
+            aiColor3D color;
+            aiMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, color);
+            meshData.diffuseColor = glm::vec3(color.r, color.g, color.b);
+
+            float shininess = 0.0f;
+            if (aiMaterial->Get(AI_MATKEY_SHININESS, shininess) == AI_SUCCESS) {
+                material->setShininess(shininess);
+            }
+
+            m_MaterialsLoaded.emplace(materialIndex, material);
+            meshData.material = material;
+        }
     }
 
     return meshData;
 }
 
-std::string Model::loadMaterialTexture(aiMaterial* material, aiTextureType type) {
-    if (material->GetTextureCount(type) > 0) {
+void Model::loadTextureType(
+    aiMaterial* aiMaterial,
+    aiTextureType type,
+    std::function<void(std::shared_ptr<Texture>)> setter) {
+    // std::cout << "Diffuse count: " << material->GetTextureCount(aiTextureType_DIFFUSE) <<
+    // std::endl;
+
+    for (uint32_t i = 0; i < aiMaterial->GetTextureCount(type); i++) {
         aiString str;
-        material->GetTexture(type, 0, &str);
-        std::string texturePath = m_Directory + '/' + str.C_Str();
+        if (aiMaterial->GetTexture(type, i, &str) != AI_SUCCESS) {
+            continue;
+        };
+
+        const std::string texturePath = m_Directory / str.C_Str();
         // std::cout << "texture path: " << texturePath << std::endl;
-        return texturePath;
-    } else {
-        // std::cout << "no texture" << std::endl;
+
+        if (texturePath.empty())
+            return;
+
+        // Check if texture is already loaded
+        auto it = m_TexturesLoaded.find(texturePath);
+        if (it != m_TexturesLoaded.end()) {
+            setter(it->second);
+        }
+        // Load new texture
+        else {
+            ZK_CORE_DEBUG("Loading texture: {}", texturePath);
+            auto texture = Texture::create(texturePath);
+            m_TexturesLoaded.emplace(texturePath, texture);
+            setter(texture);
+        }
     }
-    return "";
 }
 
 const std::vector<MeshData>& Model::getMeshes() const {

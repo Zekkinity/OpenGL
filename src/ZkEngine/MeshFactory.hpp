@@ -1,7 +1,7 @@
 #pragma once
 
 #include <memory>
-#include "Mesh.hpp"
+#include "ZkEngine/Renderer/API/OpenGL/Mesh.hpp"
 
 namespace zk::MeshFactory {
 

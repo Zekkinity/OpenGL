@@ -2,8 +2,8 @@
 
 #include "ZkEngine/Core/Window.hpp"
 #include "ZkEngine/Input/Input.hpp"
-#include "ZkEngine/Utils/AssetManager.hpp"
 #include "ZkEngine/Utils/Time.hpp"
+#include "ZkEngine/Core/Base.hpp"
 #include "imgui.h"
 
 namespace zk {
@@ -23,14 +23,14 @@ void Engine::init(const EngineSpecs& specs) {
 
     m_Window->create();
 
-    m_Renderer = Core::RendererBackend::create(Core::RendererAPI::OpenGL);
+    m_Renderer = RendererBackend::create(RendererAPI::OpenGL);
     m_Renderer->init();
 
     m_ImGuiLayer.init(m_Window->getWindow());
 
     std::filesystem::path exePath = std::filesystem::current_path();
     std::filesystem::path assetPath = exePath / "res";
-    AssetManager::setRootPath(assetPath);
+    m_AssetManager = std::make_unique<AssetManager>(assetPath);
 
     Time::init();
 }

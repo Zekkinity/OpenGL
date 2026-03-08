@@ -3,9 +3,11 @@
 #include "OpenGLRenderer.hpp"
 #include "ZkEngine/Renderer/VulkanRenderer.hpp"
 
-namespace zk::Core {
+namespace zk {
 
 std::unique_ptr<RendererBackend> RendererBackend::create(RendererAPI api) {
+    s_API = api;
+
     switch (api) {
     case RendererAPI::OpenGL:
         return std::make_unique<OpenGLRenderer>();

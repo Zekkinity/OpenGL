@@ -1,8 +1,12 @@
 #pragma once
 
+#include <cstdint>
+#include <span>
+
 class IndexBuffer {
    public:
-    IndexBuffer(const unsigned int* data, unsigned int count);
+    IndexBuffer(std::span<const std::uint32_t>);
+
     ~IndexBuffer();
 
     void bind() const;

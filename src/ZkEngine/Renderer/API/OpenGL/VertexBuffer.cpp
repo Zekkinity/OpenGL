@@ -1,15 +1,16 @@
 #include "VertexBuffer.hpp"
 
-#include "Renderer/RendererBackend.hpp"
+#include "ZkEngine/Renderer/RendererBackend.hpp"
 
 namespace zk {
 
-VertexBuffer::VertexBuffer(const void* data, unsigned int size) {
+VertexBuffer::VertexBuffer(std::span<const Vertex> data) {
     // VBO
     glGenBuffers(1, &m_RendererID);
     glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
-    glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, data.size_bytes(), data.data(), GL_STATIC_DRAW);
 }
+
 VertexBuffer::~VertexBuffer() {
     glDeleteBuffers(1, &m_RendererID);
 }
