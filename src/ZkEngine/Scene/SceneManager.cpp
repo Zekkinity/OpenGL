@@ -1,4 +1,5 @@
 #include "SceneManager.hpp"
+#include "imgui.h"
 
 namespace zk {
 
@@ -20,6 +21,17 @@ void SceneManager::reloadScene() {
 
     if (m_MaintainCameraState)
         m_CurrentScene->getCamera()->setState(state);
+}
+
+void SceneManager::debug() {
+    m_CurrentScene->getCamera()->debug();
+    if (ImGui::Button("Reload Scene")) {
+        reloadScene();
+    }
+
+    ImGui::Checkbox("Keep Camera State", &m_MaintainCameraState);
+
+    m_CurrentScene->getLightSystem().debug();
 }
 
 } // namespace zk

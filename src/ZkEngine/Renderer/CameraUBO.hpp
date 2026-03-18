@@ -5,7 +5,8 @@
 namespace zk {
 
 struct CameraUBO {
-    glm::mat4 viewProj;
+    glm::mat4 view;
+    glm::mat4 proj;
     glm::vec4 viewPos;
 };
 

@@ -1,8 +1,10 @@
 #pragma once
 
 #include "ZkEngine/Renderer/Texture.hpp"
+
 #include <filesystem>
 #include <unordered_map>
+#include <vector>
 
 // TODO:
 // Make something like this
@@ -45,8 +47,9 @@ class AssetManager {
 
     // template <typename T>
     // std::unordered_map<std::string, T>& getStorage();
-    std::shared_ptr<Texture> loadTexture(
-        const std::filesystem::path& path, TextureFiltering filtering = TextureFiltering::NEAREST);
+    std::shared_ptr<Texture> loadTexture(const std::filesystem::path& path, const TextureSpecs& specs = {});
+
+    std::shared_ptr<Texture> loadTextureCube(const std::vector<std::filesystem::path>& faces);
 
     std::shared_ptr<Material> loadMaterial(
         std::shared_ptr<Shader> shader,
@@ -54,17 +57,21 @@ class AssetManager {
         std::shared_ptr<Texture> specularMap = nullptr);
 
     std::shared_ptr<Shader> loadShader(
-        const std::filesystem::path& vertexPath, const std::filesystem::path& fragmentPath);
+        std::string_view vertexPath,
+        std::string_view fragmentPath,
+        std::string_view geometryPath = "");
 
     void clearUnused();
-    void reloadShader(const std::string& name);
+    void reloadShaders();
+
+    void debug();
 
   private:
     std::filesystem::path m_AssetRoot;
 
     std::unordered_map<std::string, std::weak_ptr<Texture>> m_LoadedTextures;
-    std::unordered_map<std::string, std::weak_ptr<Material>> m_LoadedMaterials;
     std::unordered_map<std::string, std::weak_ptr<Shader>> m_LoadedShaders;
+    int m_MaterialCount = 0;
 };
 
 } // namespace zk

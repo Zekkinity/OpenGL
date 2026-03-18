@@ -6,45 +6,60 @@
 #include <fstream>
 #include <iostream>
 
+#include <glm/gtc/type_ptr.hpp>
+
 namespace zk {
 
-Result<std::shared_ptr<OpenGLShader>> OpenGLShader::create(
-    const std::string& vertexShader, const std::string& fragmentShader) {
+OpenGLShader::OpenGLShader(
+    std::string_view vertexShader, std::string_view fragmentShader, std::string_view geometryShader)
+    : m_VertexPath(vertexShader), m_FragmentPath(fragmentShader), m_GeometryPath(geometryShader) {
     if (!std::filesystem::exists(vertexShader)) {
-        return Err("Vertex shader not found: " + vertexShader);
+        ZK_CORE_ERROR("Vertex shader not found: {}", vertexShader);
     }
 
     if (!std::filesystem::exists(fragmentShader)) {
-        return Err("Fragment shader not found: " + fragmentShader);
+        ZK_CORE_ERROR("Fragment shader not found: {}", fragmentShader);
+    }
+
+    if (!std::filesystem::exists(geometryShader) && !geometryShader.empty()) {
+        ZK_CORE_ERROR("Geometry shader not found: {}", geometryShader);
     }
 
     std::string vertexSource = readFile(vertexShader);
     std::string fragmentSource = readFile(fragmentShader);
-
-    uint32_t program = createShader(vertexSource, fragmentSource);
-
-    if (program == 0) {
-        return Err("Failed to create shader");
+    std::string geometrySource;
+    if (std::filesystem::exists(geometryShader) && !geometryShader.empty()) {
+        geometrySource = readFile(geometryShader);
     }
 
-    // Call new so we can keep constructor private
-    return std::shared_ptr<OpenGLShader>(new OpenGLShader(program));
-}
+    m_RendererID = createShader(vertexSource, fragmentSource, geometrySource);
 
-OpenGLShader::OpenGLShader(uint32_t program) : m_RendererID(program) {}
+    if (m_RendererID == 0) {
+        ZK_CORE_ERROR("Failed to create shader: {}", vertexShader);
+    }
+}
 
 OpenGLShader::~OpenGLShader() {
     glDeleteProgram(m_RendererID);
 }
 
 uint32_t OpenGLShader::createShader(
-    const std::string& vertexShader, const std::string& fragmentShader) {
+    std::string_view vertexShader,
+    std::string_view fragmentShader,
+    std::string_view geometryShader) {
     uint32_t shaderProgram = glCreateProgram();
     uint32_t vertShader = compileShader(GL_VERTEX_SHADER, vertexShader);
     uint32_t fragShader = compileShader(GL_FRAGMENT_SHADER, fragmentShader);
 
     glAttachShader(shaderProgram, vertShader);
     glAttachShader(shaderProgram, fragShader);
+
+    uint32_t geomShader = 0;
+    if (!geometryShader.empty()) {
+        geomShader = compileShader(GL_GEOMETRY_SHADER, geometryShader);
+        glAttachShader(shaderProgram, geomShader);
+    }
+
     glLinkProgram(shaderProgram);
 
     int sucess;
@@ -72,14 +87,18 @@ uint32_t OpenGLShader::createShader(
 
     glDeleteShader(vertShader);
     glDeleteShader(fragShader);
+    if (geomShader) {
+        glDeleteShader(geomShader);
+    }
 
     return shaderProgram;
 }
 
-uint32_t OpenGLShader::compileShader(uint32_t type, const std::string& source) {
+uint32_t OpenGLShader::compileShader(uint32_t type, std::string_view source) {
     uint32_t id = glCreateShader(type);
-    const char* src = source.c_str();
-    glShaderSource(id, 1, &src, nullptr);
+    const char* src = source.data();
+    const int len = source.size();
+    glShaderSource(id, 1, &src, &len);
     glCompileShader(id);
 
     int sucess;
@@ -99,7 +118,10 @@ uint32_t OpenGLShader::compileShader(uint32_t type, const std::string& source) {
 
         ZK_CORE_ERROR(
             "Failed to compile {} shader!: {}",
-            type == GL_VERTEX_SHADER ? "vertex" : "fragment",
+            type == GL_VERTEX_SHADER     ? "vertex"
+            : type == GL_FRAGMENT_SHADER ? "fragment"
+            : type == GL_GEOMETRY_SHADER ? "geometry"
+                                         : "unknown",
             msg);
 
         glDeleteShader(id);
@@ -116,38 +138,38 @@ void OpenGLShader::unbind() const {
     glUseProgram(0);
 }
 
-void OpenGLShader::setUniform1i(const std::string& name, int value) {
+void OpenGLShader::setInt(const std::string& name, int value) {
     glUniform1i(getUniformLocation(name), value);
 }
 
-void OpenGLShader::setUniform1f(const std::string& name, float value) {
+void OpenGLShader::setFloat(const std::string& name, float value) {
     glUniform1f(getUniformLocation(name), value);
 }
 
 // Set uniforms
-void OpenGLShader::setUniform3f(const std::string& name, float v0, float v1, float v2) {
+void OpenGLShader::setFloat3(const std::string& name, float v0, float v1, float v2) {
     glUniform3f(getUniformLocation(name), v0, v1, v2);
 }
 
-void OpenGLShader::setUniform4f(const std::string& name, float v0, float v1, float v2, float v3) {
+void OpenGLShader::setFloat4(const std::string& name, float v0, float v1, float v2, float v3) {
     glUniform4f(getUniformLocation(name), v0, v1, v2, v3);
 }
 
-void OpenGLShader::setUniform3fv(const std::string& name, const glm::vec3& value) {
-    glUniform3fv(getUniformLocation(name), 1, &value[0]);
+void OpenGLShader::setVec3(const std::string& name, const glm::vec3& value) {
+    glUniform3fv(getUniformLocation(name), 1, glm::value_ptr(value));
 }
 
-void OpenGLShader::setUniformMat4f(const std::string& name, const glm::mat4& matrix) {
-    glUniformMatrix4fv(getUniformLocation(name), 1, GL_FALSE, &matrix[0][0]);
+void OpenGLShader::setMat4(const std::string& name, const glm::mat4& matrix) {
+    glUniformMatrix4fv(getUniformLocation(name), 1, GL_FALSE, glm::value_ptr(matrix));
 }
 
-void OpenGLShader::setUniform4fv(const std::string& name, const glm::vec4& value) {
-    glUniform4fv(getUniformLocation(name), 1, &value[0]);
+void OpenGLShader::setVec4(const std::string& name, const glm::vec4& value) {
+    glUniform4fv(getUniformLocation(name), 1, glm::value_ptr(value));
 }
 
-void OpenGLShader::setLightUniform(
+void OpenGLShader::setLight(
     const std::string& name, const PointLight& light, const glm::vec3& position) {
-    setUniform3f(name + ".position", position.x, position.y, position.z);
+    setFloat3(name + ".position", position.x, position.y, position.z);
 
     //     NOTE:
     //     glm::vec3 diffuseColor = m_LightColor * glm::vec3(0.8f);
@@ -156,41 +178,64 @@ void OpenGLShader::setLightUniform(
     glm::vec3 ambient = diffuse * light.ambient;
     glm::vec3 specular = light.color * light.specular;
 
-    setUniform3f(name + ".ambient", ambient.x, ambient.y, ambient.z);
-    setUniform3f(name + ".diffuse", diffuse.x, diffuse.y, diffuse.z);
-    setUniform3f(name + ".specular", specular.x, specular.y, specular.z);
-    setUniform1f(name + ".constant", light.constant);
-    setUniform1f(name + ".linear", light.linear);
-    setUniform1f(name + ".quadratic", light.quadratic);
+    setFloat3(name + ".ambient", ambient.x, ambient.y, ambient.z);
+    setFloat3(name + ".diffuse", diffuse.x, diffuse.y, diffuse.z);
+    setFloat3(name + ".specular", specular.x, specular.y, specular.z);
+    setFloat(name + ".constant", light.constant);
+    setFloat(name + ".linear", light.linear);
+    setFloat(name + ".quadratic", light.quadratic);
 }
 
-void OpenGLShader::setLightUniform(const std::string& name, const DirectionalLight& light) {
+void OpenGLShader::setLight(const std::string& name, const DirectionalLight& light) {
     glm::vec3 ambient = light.color * light.ambient;
     glm::vec3 diffuse = light.color * light.diffuse;
     glm::vec3 specular = light.color * light.specular;
 
-    setUniform3f(name + ".direction", light.direction.x, light.direction.y, light.direction.z);
-    setUniform3f(name + ".ambient", ambient.x, ambient.y, ambient.z);
-    setUniform3f(name + ".diffuse", diffuse.x, diffuse.y, diffuse.z);
-    setUniform3f(name + ".specular", specular.x, specular.y, specular.z);
+    setFloat3(name + ".direction", light.direction.x, light.direction.y, light.direction.z);
+    setFloat3(name + ".ambient", ambient.x, ambient.y, ambient.z);
+    setFloat3(name + ".diffuse", diffuse.x, diffuse.y, diffuse.z);
+    setFloat3(name + ".specular", specular.x, specular.y, specular.z);
 }
 
-void OpenGLShader::setLightUniform(
+void OpenGLShader::setLight(
     const std::string& name, const SpotLight& light, const glm::vec3& position) {
     glm::vec3 ambient = light.color * light.ambient;
     glm::vec3 diffuse = light.color * light.diffuse;
     glm::vec3 specular = light.color * light.specular;
 
-    setUniform3f(name + ".position", position.x, position.y, position.z);
-    setUniform3f(name + ".direction", light.direction.x, light.direction.y, light.direction.z);
-    setUniform1f(name + ".cutOff", light.cutOff);
-    setUniform1f(name + ".outerCutOff", light.outerCutOff);
-    setUniform3f(name + ".ambient", ambient.x, ambient.y, ambient.z);
-    setUniform3f(name + ".diffuse", diffuse.x, diffuse.y, diffuse.z);
-    setUniform3f(name + ".specular", specular.x, specular.y, specular.z);
-    setUniform1f(name + ".constant", light.constant);
-    setUniform1f(name + ".linear", light.linear);
-    setUniform1f(name + ".quadratic", light.quadratic);
+    setFloat3(name + ".position", position.x, position.y, position.z);
+    setFloat3(name + ".direction", light.direction.x, light.direction.y, light.direction.z);
+    setFloat(name + ".cutOff", light.cutOff);
+    setFloat(name + ".outerCutOff", light.outerCutOff);
+    setFloat3(name + ".ambient", ambient.x, ambient.y, ambient.z);
+    setFloat3(name + ".diffuse", diffuse.x, diffuse.y, diffuse.z);
+    setFloat3(name + ".specular", specular.x, specular.y, specular.z);
+    setFloat(name + ".constant", light.constant);
+    setFloat(name + ".linear", light.linear);
+    setFloat(name + ".quadratic", light.quadratic);
+}
+
+void OpenGLShader::reload() {
+    std::string vertexSource = readFile(m_VertexPath);
+    std::string fragmentSource = readFile(m_FragmentPath);
+    std::string geometrySource;
+    if (!m_GeometryPath.empty()) {
+        geometrySource = readFile(m_GeometryPath);
+    }
+
+    uint32_t program = createShader(vertexSource, fragmentSource, geometrySource);
+
+    if (program == 0) {
+        ZK_CORE_ERROR("Failed to reload shader");
+        return;
+    }
+
+    glDeleteProgram(m_RendererID);
+    m_RendererID = program;
+
+    m_UniformLocationCache.clear();
+
+    ZK_CORE_DEBUG("Shader reloaded");
 }
 
 int OpenGLShader::getUniformLocation(const std::string& name) {
@@ -207,20 +252,15 @@ int OpenGLShader::getUniformLocation(const std::string& name) {
     return location;
 }
 
-std::string OpenGLShader::readFile(const std::string& filepath) {
-    std::string result;
-    std::ifstream in(filepath, std::ios::in | std::ios::binary);
-    if (in) {
-        in.seekg(0, std::ios::end);
-        result.resize(in.tellg());
-        in.seekg(0, std::ios::beg);
-        in.read(&result[0], result.size());
-        in.close();
-    }
-    else {
+std::string OpenGLShader::readFile(std::string_view filepath) {
+    std::ifstream in(filepath.data(), std::ios::binary);
+
+    if (!in) {
         ZK_CORE_ERROR("Could not open file: {}", filepath);
+        return {};
     }
-    return result;
+
+    return std::string((std::istreambuf_iterator<char>(in)), (std::istreambuf_iterator<char>()));
 }
 
 } // namespace zk

@@ -14,12 +14,7 @@ Registry::Registry() {
 Registry::~Registry() {
     // std::cout << "Registry destroyed at " << this << "\n";
 
-    m_Transforms.clear();
-    m_Renderers.clear();
-    m_Models.clear();
-    m_PointLights.clear();
-    m_DirectionalLights.clear();
-    m_SpotLights.clear();
+    clearEntities();
 }
 
 Entity Registry::createEntity() {
@@ -34,6 +29,15 @@ void Registry::destroyEntity(EntityID id) {
     m_PointLights.erase(id);
     m_DirectionalLights.erase(id);
     m_SpotLights.erase(id);
+}
+
+void Registry::clearEntities() {
+    m_Transforms.clear();
+    m_Renderers.clear();
+    m_Models.clear();
+    m_PointLights.clear();
+    m_DirectionalLights.clear();
+    m_SpotLights.clear();
 }
 
 } // namespace zk

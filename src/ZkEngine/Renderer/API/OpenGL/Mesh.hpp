@@ -4,7 +4,8 @@
 #include <vector>
 #include "IndexBuffer.hpp"
 #include "VertexArray.hpp"
-#include "Vertex.hpp"
+#include "ZkEngine/Renderer/Vertex.hpp"
+
 #include "VertexBufferLayout.hpp"
 #include <glm/glm.hpp>
 

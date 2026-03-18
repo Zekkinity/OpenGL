@@ -18,4 +18,4 @@ std::unique_ptr<RendererBackend> RendererBackend::create(RendererAPI api) {
     }
 }
 
-} // namespace zk::Core
+} // namespace zk

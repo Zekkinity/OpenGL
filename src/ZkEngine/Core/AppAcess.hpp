@@ -54,13 +54,16 @@ inline std::filesystem::path asset(const std::filesystem::path& path) {
 
 namespace Asset {
 
-inline std::shared_ptr<Texture> loadTexture(const std::filesystem::path& path, TextureFiltering filtering = TextureFiltering::NEAREST) {
-    return Engine::Get()->getAssetManager().loadTexture(path, filtering);
+inline std::shared_ptr<Texture> loadTexture(const std::filesystem::path& path, const TextureSpecs& specs = {}) {
+    return Engine::Get()->getAssetManager().loadTexture(path, specs);
 }
 
-inline std::shared_ptr<Shader> loadShader(
-    const std::filesystem::path& vertexPath, const std::filesystem::path& fragmentPath) {
-    return Engine::Get()->getAssetManager().loadShader(vertexPath, fragmentPath);
+inline std::shared_ptr<Texture> loadTextureCube(const std::vector<std::filesystem::path>& faces) {
+    return Engine::Get()->getAssetManager().loadTextureCube(faces);
+}
+
+inline std::shared_ptr<Shader> loadShader(std::string_view vertexPath, std::string_view fragmentPath, std::string_view geometryPath = "") {
+    return Engine::Get()->getAssetManager().loadShader(vertexPath, fragmentPath, geometryPath);
 }
 
 inline std::shared_ptr<Material> loadMaterial(std::shared_ptr<Shader> shader, std::shared_ptr<Texture> texture = nullptr, std::shared_ptr<Texture> specularMap = nullptr) {

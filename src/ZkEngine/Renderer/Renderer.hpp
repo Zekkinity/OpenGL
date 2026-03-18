@@ -1,6 +1,7 @@
 #pragma once
 
 #include "glm/fwd.hpp"
+#include <filesystem>
 #include <vector>
 
 namespace zk {
@@ -22,6 +23,9 @@ class Renderer {
     static void setViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height);
 
     static void drawLine(const std::vector<glm::vec3>& pts);
+
+    static void setSkybox(const std::vector<std::filesystem::path>& tex);
+
 };
 
 } // namespace zk

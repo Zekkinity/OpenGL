@@ -55,6 +55,8 @@ class Material {
     BlendMode m_BlendMode = BlendMode::OPAQUE;
 
     bool m_UseTextures = true;
+
+    uint32_t white = 0;
 };
 
 } // namespace zk

@@ -15,14 +15,13 @@ void LightSystem::upload(Shader& shader) {
     shader.bind();
 
     auto& pointLights = m_Registry.getStorage<PointLight>();
-    shader.setUniform1i("u_PointLightCount", pointLights.size());
+    shader.setInt("u_PointLightCount", pointLights.size());
 
     size_t i = 0;
     for (auto& [entity, pointLight] : pointLights) {
         auto& transform = m_Registry.getComponent<Transform3D>(entity);
 
-        shader.setLightUniform(
-            "u_PointLights[" + std::to_string(i) + "]", pointLight, transform.position);
+        shader.setLight("u_PointLights[" + std::to_string(i) + "]", pointLight, transform.position);
 
         i++;
     }
@@ -32,12 +31,12 @@ void LightSystem::upload(Shader& shader) {
         auto& transform = m_Registry.getComponent<Transform3D>(entity);
 
         // NOTE: Remember this is passing as u_SpotLight and not u_SpotLight[i]
-        shader.setLightUniform("u_SpotLight", spotLight, transform.position);
+        shader.setLight("u_SpotLight", spotLight, transform.position);
     }
 
     auto& dirLights = m_Registry.getStorage<DirectionalLight>();
     for (auto& [entity, dirLight] : dirLights) {
-        shader.setLightUniform("u_DirLight", dirLight);
+        shader.setLight("u_DirLight", dirLight);
     }
 }
 

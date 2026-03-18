@@ -12,7 +12,7 @@ Ray makeRayFromScreenCenter(int width, int height, Camera3D& camera) {
     ndc.z = -1.0f;
     ndc.w = 1.0f;
 
-    glm::mat4 invVP = glm::inverse(camera.getViewProjection());
+    glm::mat4 invVP = glm::inverse(camera.getProjection() * camera.getView());
     glm::vec4 worldPos = invVP * ndc;
     worldPos /= worldPos.w;
 

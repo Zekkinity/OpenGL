@@ -31,6 +31,7 @@ class Registry {
 
     Entity createEntity();
     void destroyEntity(EntityID id);
+    void clearEntities();
 
     template <typename T, typename... Args>
     T& addComponent(EntityID id, Args&&... args) {

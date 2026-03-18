@@ -17,17 +17,9 @@ void Renderer::update() {
     Backend().update();
 }
 
-void Renderer::beginFrame() {
-    Backend().beginFrame();
-}
-
 // void Renderer::submit(const RenderObject& obj, const Camera3D& camera) {
 //     Backend().submit(obj, camera);
 // }
-
-void Renderer::endFrame() {
-    Backend().endFrame();
-}
 
 void Renderer::setClearColor(const glm::vec4& color) {
     Backend().setClearColor(color);
@@ -42,7 +34,11 @@ void Renderer::drawLine(const std::vector<glm::vec3>& pts) {
 }
 
 void Renderer::setViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height) {
-    Backend().setViewport(x, y, width, height);
+    Backend().setViewport(Viewport(x, y, width, height));
+}
+
+void Renderer::setSkybox(const std::vector<std::filesystem::path>& tex) {
+    Backend().setSkybox(tex);
 }
 
 } // namespace zk

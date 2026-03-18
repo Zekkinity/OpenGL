@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ZkEngine/Camera3D.hpp"
+#include "ZkEngine/CameraController.hpp"
 #include "ZkEngine/ECS/Registry.hpp"
 #include "ZkEngine/ECS/Entity.hpp"
 
@@ -30,17 +31,22 @@ class Scene {
 
     virtual void debug();
 
-    Camera3D* getCamera() { return m_Camera.get(); }
+    CameraController& getCameraController() { return m_CameraController; }
+
+    Camera3D* getCamera() { return &m_Camera; }
+    const Camera3D* getCamera() const { return &m_Camera; }
     LightSystem& getLightSystem() { return m_LightSystem; }
 
     Registry& getRegistry() { return m_Registry; }
+    const Registry& getRegistry() const { return m_Registry; }
 
-  protected:
+  private:
     Registry m_Registry;
     PhysicsSystem m_PhysicsSystem;
     LightSystem m_LightSystem;
 
-    std::unique_ptr<Camera3D> m_Camera;
+    Camera3D m_Camera;
+    CameraController m_CameraController = CameraController(m_Camera);
 };
 
 } // namespace zk

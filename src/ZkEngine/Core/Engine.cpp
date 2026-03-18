@@ -19,18 +19,20 @@ Engine::~Engine() {
 }
 
 void Engine::init(const EngineSpecs& specs) {
+    // TODO:
+    // Manage this of the renderr inside the window like glfwFramebufferSizeCallback
+    // and the glViewport stuff
     m_Window = std::make_unique<Window>(specs);
-
     m_Window->create();
-
-    m_Renderer = RendererBackend::create(RendererAPI::OpenGL);
-    m_Renderer->init();
 
     m_ImGuiLayer.init(m_Window->getWindow());
 
     std::filesystem::path exePath = std::filesystem::current_path();
     std::filesystem::path assetPath = exePath / "res";
     m_AssetManager = std::make_unique<AssetManager>(assetPath);
+
+    m_Renderer = RendererBackend::create(RendererAPI::OpenGL);
+    m_Renderer->init();
 
     Time::init();
 }
@@ -60,23 +62,15 @@ void Engine::run(Application& app) {
 
 void Engine::update(float dt) {
     m_Renderer->update();
-
-    // TODO:
-    // Get current ACTIVE Camera
-    // since this will not allow multiple cameras
-    // - Maybe provide Renderer a pointer to the active camera and update it inside update()
-    m_Renderer->updateCamera(*m_SceneManager.getScene().getCamera());
-
     m_App->onUpdate(dt);
+
     onWindowResize(1920, 1080);
 }
 
 void Engine::render() {
-    m_Renderer->beginFrame();
-    {
-        m_App->onRender(*m_Renderer);
-    }
-    m_Renderer->endFrame();
+    Scene& scene = m_SceneManager.getScene();
+
+    m_Renderer->renderScene(scene);
 
     if (m_HideDebugWindow)
         return;
@@ -92,10 +86,10 @@ void Engine::render() {
 void Engine::onWindowResize(int width, int height) {
     // Update projection matrix (aspect ratio)
     glm::vec2 fbSize = m_Window->getSize();
-    m_Renderer->setViewport(0, 0, fbSize.x, fbSize.y);
+    m_Renderer->resize(fbSize.x, fbSize.y);
+    // m_Renderer->setViewport(0, 0, fbSize.x, fbSize.y);
 
     m_SceneManager.getScene().getCamera()->onWindowResize(fbSize.x, fbSize.y);
-    m_SceneManager.getScene().getCamera()->updateView();
 }
 
 void Engine::shutdown() {
@@ -128,23 +122,13 @@ void Engine::onImGuiRender() {
             ImGui::EndTabItem();
         }
 
+        if (ImGui::BeginTabItem("Asset Manager")) {
+            m_AssetManager->debug();
+            ImGui::EndTabItem();
+        }
+
         if (ImGui::BeginTabItem("Scene")) {
-            ImGui::Text(
-                "Camera Position: %.2f, %.2f, %.2f",
-                m_SceneManager.getScene().getCamera()->getPosition().x,
-                m_SceneManager.getScene().getCamera()->getPosition().y,
-                m_SceneManager.getScene().getCamera()->getPosition().z);
-            if (ImGui::Button("Reload Scene")) {
-                m_SceneManager.reloadScene();
-            }
-
-            static bool keepCameraState = m_SceneManager.getKeepCameraState();
-            if (ImGui::Checkbox("Keep Camera State", &keepCameraState)) {
-                m_SceneManager.keepCameraState(keepCameraState);
-            }
-
-            m_SceneManager.getScene().getLightSystem().debug();
-
+            m_SceneManager.debug();
             ImGui::EndTabItem();
         }
 

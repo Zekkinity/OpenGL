@@ -1,10 +1,29 @@
 #pragma once
 
-#include <memory>
+#include <cstdint>
 
 namespace zk {
 
-enum TextureFiltering { NEAREST = 0x2600, LINEAR = 0x2601 };
+enum class TextureType {
+    Texture2D,
+    TextureCubeMap,
+};
+
+enum class TextureFormat { None = 0, RGB8, RGBA8, SRGB, Depth24Stencil8, Depth, Depth32F };
+
+enum class TextureFilter { Nearest, Linear };
+
+enum class TextureWrap { ClampToEdge, ClampToBorder, Repeat };
+
+struct TextureSpecs {
+    uint32_t width = 1;
+    uint32_t height = 1;
+
+    TextureFormat format = TextureFormat::SRGB;
+
+    TextureFilter filter = TextureFilter::Linear;
+    TextureWrap wrap = TextureWrap::Repeat;
+};
 
 class Texture {
   protected:
@@ -17,14 +36,11 @@ class Texture {
     Texture& operator=(const Texture&) = delete;
     Texture& operator=(Texture&&) = delete;
 
-    virtual void bind(unsigned int slot = 0) const = 0;
-    virtual void unbind() const = 0;
+    virtual void bind(uint32_t slot = 0) const = 0;
+    virtual void unbind(uint32_t slot = 0) const = 0;
 
     virtual int getWidth() const = 0;
     virtual int getHeight() const = 0;
-
-    static std::shared_ptr<Texture> create(
-        const std::string& path, TextureFiltering filtering = TextureFiltering::NEAREST);
 };
 
 } // namespace zk

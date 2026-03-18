@@ -25,7 +25,7 @@ void Window::create() {
 
     glfwInit();
 
-    // This setups OpenGL 3.3 Core Profile
+    // This setups OpenGL 4.6 Core Profile
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);

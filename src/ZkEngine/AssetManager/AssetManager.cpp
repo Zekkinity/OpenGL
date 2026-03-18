@@ -1,14 +1,17 @@
 #include "AssetManager.hpp"
 
+#include "ZkEngine/Core/Base.hpp"
 #include "ZkEngine/Renderer/Material.hpp"
 #include "ZkEngine/Renderer/Shader.hpp"
+#include "ZkEngine/Renderer/Texture2D.hpp"
+#include "ZkEngine/Renderer/TextureCube.hpp"
+#include "imgui.h"
 
 namespace zk {
 
 AssetManager::AssetManager(const std::filesystem::path& path) : m_AssetRoot(path) {}
 
 AssetManager::~AssetManager() {
-    m_LoadedMaterials.clear();
     m_LoadedTextures.clear();
     m_LoadedShaders.clear();
 }
@@ -18,9 +21,11 @@ std::filesystem::path AssetManager::asset(const std::filesystem::path& relative)
 }
 
 // This doesnt check for the texture filtering
-std::shared_ptr<Texture> AssetManager::loadTexture(
-    const std::filesystem::path& path, TextureFiltering filtering) {
-    std::string texturePath = asset(path).string();
+std::shared_ptr<Texture> AssetManager::loadTexture(const std::filesystem::path& path, const TextureSpecs& specs) {
+    // We stop issues like "../../floorTexture.jpg" and "floorTexture.jpg" from creating two
+    // textures
+    auto fullPath = std::filesystem::weakly_canonical(asset(path));
+    std::string texturePath = fullPath.string();
 
     // Check if texture is already loaded
     auto it = m_LoadedTextures.find(texturePath);
@@ -31,53 +36,58 @@ std::shared_ptr<Texture> AssetManager::loadTexture(
     }
 
     // Load new texture
-    auto texture = Texture::create(texturePath, filtering);
+    auto texture = Texture2D::load(texturePath, specs);
     m_LoadedTextures.emplace(texturePath, texture);
 
     return texture;
 }
 
+std::shared_ptr<Texture> AssetManager::loadTextureCube(
+    const std::vector<std::filesystem::path>& faces) {
+    std::vector<std::filesystem::path> paths;
+    for (auto& face : faces) {
+        auto fullPath = std::filesystem::weakly_canonical(asset(face));
+        paths.push_back(fullPath);
+    }
+
+    return TextureCube::load(paths);
+}
+
 std::shared_ptr<Shader> AssetManager::loadShader(
-    const std::filesystem::path& vertexPath, const std::filesystem::path& fragmentPath) {
+    std::string_view vertexPath, std::string_view fragmentPath, std::string_view geometryPath) {
     std::string vPath = asset(vertexPath).string();
     std::string fPath = asset(fragmentPath).string();
 
-    std::string key = vPath + "|" + fPath;
+    std::string gPath;
+    if (!geometryPath.empty()) {
+        gPath = asset(geometryPath).string();
+    }
+
+    std::string key = vPath + "|" + fPath + "|" + gPath;
 
     // Check if shader is already loaded
-    // auto it = m_LoadedShaders.find(key);
-    // if (it != m_LoadedShaders.end()) {
-    //     if (auto existingShader = it->second.lock()) {
-    //         return existingShader;
-    //     }
-    // }
+    auto it = m_LoadedShaders.find(key);
+    if (it != m_LoadedShaders.end()) {
+        if (auto existingShader = it->second.lock()) {
+            return existingShader;
+        }
+    }
 
     // Load new shader
-    auto shader = Shader::create(vPath, fPath);
+    auto shader = Shader::create(vPath, fPath, gPath);
 
-    // m_LoadedShaders.emplace(key, shader);
+    m_LoadedShaders.emplace(key, shader);
 
     return shader;
 }
 
-// FIX: This function will always load the same shader for all materials
 std::shared_ptr<Material> AssetManager::loadMaterial(
     std::shared_ptr<Shader> shader,
     std::shared_ptr<Texture> texture,
     std::shared_ptr<Texture> specularMap) {
-    // Check if material is already loaded
-    // auto it = m_LoadedMaterials.find();
-    // if (it != m_LoadedMaterials.end()) {
-    //     if (auto existingMaterial = it->second.lock()) {
-    //         return existingMaterial;
-    //     }
-    // }
+    m_MaterialCount++;
 
-    // auto shader = loadShader(materialName);
-
-    auto material = std::make_shared<Material>(shader, texture, specularMap);
-    // m_LoadedMaterials.emplace(materialName, material);
-    return material;
+    return std::make_shared<Material>(shader, texture, specularMap);
 }
 
 void AssetManager::clearUnused() {
@@ -92,17 +102,29 @@ void AssetManager::clearUnused() {
 
     clearMap(m_LoadedTextures);
     clearMap(m_LoadedShaders);
-    clearMap(m_LoadedMaterials);
 }
 
-void AssetManager::reloadShader(const std::string& name) {
-    auto it = m_LoadedShaders.find(name);
-    if (it == m_LoadedShaders.end())
-        return;
+void AssetManager::reloadShaders() {
+    int count = 0;
 
-    if (auto shader = it->second.lock()) {
-        // shader->reload();
+    for (auto& [name, weakShader] : m_LoadedShaders) {
+        if (auto shader = weakShader.lock()) {
+            shader->reload();
+            count++;
+        }
     }
+
+    ZK_CORE_DEBUG("Reloaded {} shaders", count);
+}
+
+void AssetManager::debug() {
+    if (ImGui::Button("Reload Shaders")) {
+        reloadShaders();
+    }
+
+    ImGui::Text("Loaded Shaders: %zu", m_LoadedShaders.size());
+    ImGui::Text("Loaded Textures: %zu", m_LoadedTextures.size());
+    ImGui::Text("Loaded Materials: %d", m_MaterialCount);
 }
 
 } // namespace zk

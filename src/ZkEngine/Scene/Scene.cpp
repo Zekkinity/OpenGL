@@ -2,15 +2,14 @@
 #include "ZkEngine/Model.hpp"
 
 #include "ZkEngine/Core/Base.hpp"
+#include "ZkEngine/Renderer/Core/RenderCommand.hpp"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/norm.hpp>
 
 namespace zk {
 
-Scene::Scene() : m_LightSystem(m_Registry) {
-    m_Camera = std::make_unique<Camera3D>();
-}
+Scene::Scene() : m_LightSystem(m_Registry) {}
 
 Scene::~Scene() {}
 
@@ -47,7 +46,7 @@ void Scene::submit(RendererBackend& renderer) const {
         cmd.mesh = renderObject.mesh.get();
         cmd.material = renderObject.material.get();
         cmd.modelMatrix = transform.getMatrix();
-        cmd.distanceToCamera = glm::length2(m_Camera->getPosition() - transform.position);
+        cmd.distanceToCamera = glm::length2(m_Camera.getPosition() - transform.position);
         renderer.submit(cmd);
     }
 

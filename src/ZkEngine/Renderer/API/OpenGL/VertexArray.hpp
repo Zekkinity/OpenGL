@@ -1,6 +1,6 @@
 #pragma once
 
-#include "VertexBuffer.hpp"
+#include "ZkEngine/Renderer/VertexBuffer.hpp"
 
 namespace zk {
 

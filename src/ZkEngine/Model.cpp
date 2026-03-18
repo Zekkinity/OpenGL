@@ -1,5 +1,7 @@
 #include "Model.hpp"
+
 #include "ZkEngine/Core/Base.hpp"
+#include "ZkEngine/Renderer/Texture2D.hpp"
 
 #include <assimp/Importer.hpp>
 #include <filesystem>
@@ -170,7 +172,7 @@ void Model::loadTextureType(
         // Load new texture
         else {
             ZK_CORE_DEBUG("Loading texture: {}", texturePath);
-            auto texture = Texture::create(texturePath);
+            auto texture = Texture2D::load(texturePath);
             m_TexturesLoaded.emplace(texturePath, texture);
             setter(texture);
         }
