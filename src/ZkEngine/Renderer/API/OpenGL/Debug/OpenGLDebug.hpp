@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ZkEngine/Renderer/RendererBackend.hpp"
+#include "ZkEngine/Renderer/API/OpenGL/OpenGLRenderer.hpp"
 
 namespace zk {
 

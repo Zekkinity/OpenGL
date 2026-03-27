@@ -1,17 +1,20 @@
 #include "Model.hpp"
 
+#include "ZkEngine/Core/AppAcess.hpp"
 #include "ZkEngine/Core/Base.hpp"
-#include "ZkEngine/Renderer/Texture2D.hpp"
+#include "ZkEngine/RenderObject.hpp"
+#include "ZkEngine/Renderer/RenderDevice.hpp"
+#include "ZkEngine/Renderer/Texture.hpp"
 
 #include <assimp/Importer.hpp>
-#include <filesystem>
 #include <assimp/postprocess.h>
 
-namespace zk {
+#include <filesystem>
 
-// Model::Model(const std::filesystem::path& path) {
-//     loadModel(path);
-// }
+// TODO:
+// - Load from Assets
+
+namespace zk {
 
 Model::Model(const std::filesystem::path& path, std::shared_ptr<Shader> shader) : m_Shader(shader) {
     loadModel(path);
@@ -55,7 +58,7 @@ void Model::processNode(aiNode* node, const aiScene* scene) {
     }
 }
 
-MeshData Model::processMesh(aiMesh* mesh, const aiScene* scene) {
+ModelMeshData Model::processMesh(aiMesh* mesh, const aiScene* scene) {
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
 
@@ -100,8 +103,9 @@ MeshData Model::processMesh(aiMesh* mesh, const aiScene* scene) {
     }
 
     // Material
-    MeshData meshData;
-    meshData.mesh = std::make_shared<Mesh>(vertices, indices);
+    ModelMeshData meshData;
+    meshData.vertices = vertices;
+    meshData.indices = indices;
     meshData.diffuseColor = glm::vec3(1.0f);
 
     if (mesh->mMaterialIndex >= 0) {
@@ -109,7 +113,7 @@ MeshData Model::processMesh(aiMesh* mesh, const aiScene* scene) {
 
         // Check if material is already loaded
         if (m_MaterialsLoaded.contains(materialIndex)) {
-            // std::cout << "Material already loaded" << std::endl;
+            std::cout << "Material already loaded" << std::endl;
             meshData.material = m_MaterialsLoaded.at(materialIndex);
         }
 
@@ -157,7 +161,6 @@ void Model::loadTextureType(
         if (aiMaterial->GetTexture(type, i, &str) != AI_SUCCESS) {
             continue;
         };
-
         const std::string texturePath = m_Directory / str.C_Str();
         // std::cout << "texture path: " << texturePath << std::endl;
 
@@ -172,15 +175,22 @@ void Model::loadTextureType(
         // Load new texture
         else {
             ZK_CORE_DEBUG("Loading texture: {}", texturePath);
-            auto texture = Texture2D::load(texturePath);
+            auto texture = Renderer::getDevice().loadTexture(texturePath);
             m_TexturesLoaded.emplace(texturePath, texture);
             setter(texture);
         }
     }
 }
 
-const std::vector<MeshData>& Model::getMeshes() const {
-    return m_Meshes;
+void Model::spawn(Entity parent, RenderDevice& renderer) const {
+    for (auto& meshData : m_Meshes) {
+
+        Entity child = zk::createEntity();
+
+        auto gpuMesh = renderer.createMesh(meshData.vertices, meshData.indices);
+
+        child.addRenderable(gpuMesh, meshData.material);
+    }
 }
 
 } // namespace zk

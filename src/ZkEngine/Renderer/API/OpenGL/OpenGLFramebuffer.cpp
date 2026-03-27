@@ -2,7 +2,8 @@
 
 #include "ZkEngine/Core/Base.hpp"
 #include "ZkEngine/Renderer/API/OpenGL/OpenGLUtils.hpp"
-#include "ZkEngine/Renderer/RendererBackend.hpp"
+
+#include "ZkEngine/Renderer/API/OpenGL/OpenGLRenderer.hpp"
 
 namespace zk {
 

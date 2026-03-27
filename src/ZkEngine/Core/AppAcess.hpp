@@ -1,8 +1,6 @@
 #pragma once
 
 #include "ZkEngine/Core/Engine.hpp"
-#include "ZkEngine/Renderer/Renderer.hpp"
-#include "ZkEngine/Scene/Lights.hpp"
 #include "ZkEngine/ECS/Entity.hpp"
 
 namespace zk {
@@ -14,9 +12,7 @@ inline SceneManager& GetSceneManager() {
 inline Scene& GetCurrentScene() {
     return GetSceneManager().getScene();
 }
-inline LightSystem& GetLightSystem() {
-    return GetCurrentScene().getLightSystem();
-}
+
 inline Registry& GetRegistry() {
     return GetCurrentScene().getRegistry();
 }
@@ -29,6 +25,14 @@ inline void ToggleDebugWindow() {
     Engine::Get()->toggleDebugWindow();
 }
 
+inline void LockCursor(bool locked) {
+    Engine::Get()->lockCursor(locked);
+}
+
+inline bool IsCursorLocked() {
+    return Engine::Get()->isCursorLocked();
+}
+
 // Maybe recieve light type
 // LightType::Point || LightType::Directional || LightType::Spot
 // Maybe recieve light color
@@ -36,10 +40,11 @@ inline void ToggleDebugWindow() {
 // inline Entity CreateLight(LightType type, glm::vec3 color, glm::vec3 position) {}
 inline Entity CreateLight() {
     Entity light = GetRegistry().createEntity();
-    light.addComponent<zk::PointLight>(zk::PointLight{
-        .linear = 0.09f,
-        .quadratic = 0.003f,
-    });
+    light.addPointLight();
+    // light.addComponent<zk::PointLight>(zk::PointLight{
+    //     .linear = 0.09f,
+    //     .quadratic = 0.003f,
+    // });
 
     return light;
 }

@@ -2,6 +2,7 @@
 
 #include "ZkEngine/Camera3D.hpp"
 
+#include "ZkEngine/Core/Log.hpp"
 #include "ZkEngine/Input/Input.hpp"
 #include "imgui.h"
 
@@ -10,9 +11,8 @@ namespace zk {
 CameraController::CameraController(Camera3D& camera) : m_Camera(camera) {}
 
 void CameraController::update(float deltaTime) {
-    handleKeyboard(deltaTime);
-
     if (m_MouseCaptured) {
+        handleKeyboard(deltaTime);
         handleMouse();
         handleMouseScroll();
     }

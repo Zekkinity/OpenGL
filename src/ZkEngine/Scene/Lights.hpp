@@ -42,4 +42,29 @@ struct SpotLight {
     float quadratic;
 };
 
-}
+struct GPUPointLight {
+    PointLight light;
+    glm::vec3 position;
+    uint32_t depthMap = 0;
+    float farPlane;
+};
+
+struct GPUSpotLight {
+    SpotLight light;
+    glm::vec3 position;
+};
+
+struct GPUDirLight {
+    DirectionalLight light;
+
+    uint32_t depthMap = 0;
+    glm::mat4 lightSpaceMatrix = glm::mat4(1.0f);
+};
+
+struct LightData {
+    std::vector<GPUPointLight> pointLights;
+    std::vector<GPUSpotLight> spotLights;
+    std::vector<GPUDirLight> dirLights;
+};
+
+} // namespace zk

@@ -1,12 +1,12 @@
 #pragma once
 
-#include "ZkEngine/Renderer/Texture2D.hpp"
+#include "ZkEngine/Renderer/Texture.hpp"
 
 #include "ZkEngine/Utils/ImageLoader.hpp"
 
 namespace zk {
 
-class OpenGLTexture2D : public Texture2D {
+class OpenGLTexture2D : public Texture {
   public:
     OpenGLTexture2D() = delete;
 

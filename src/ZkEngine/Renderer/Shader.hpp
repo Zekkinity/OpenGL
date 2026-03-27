@@ -1,6 +1,5 @@
 #pragma once
 
-#include <memory>
 #include <string>
 #include <glm/glm.hpp>
 
@@ -39,11 +38,6 @@ class Shader {
         const std::string& name, const SpotLight& light, const glm::vec3& position) = 0;
 
     virtual void reload() = 0;
-
-    static std::shared_ptr<Shader> create(
-        std::string_view vertexShader,
-        std::string_view fragmentShader,
-        std::string_view geometryShader = "");
 };
 
 } // namespace zk

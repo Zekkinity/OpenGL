@@ -1,16 +1,27 @@
 #pragma once
 
-#include <memory>
-#include "ZkEngine/Renderer/API/OpenGL/Mesh.hpp"
+#include "ZkEngine/Renderer/Vertex.hpp"
 
-namespace zk::MeshFactory {
+namespace zk {
 
-std::shared_ptr<Mesh> createLine();
-std::shared_ptr<Mesh> createTriangle();
-std::shared_ptr<Mesh> createQuad();
-std::shared_ptr<Mesh> createCube();
-std::shared_ptr<Mesh> createSphere(float radius = 0.5f, int sectorCount = 64, int stackCount = 64);
+struct MeshData {
+    std::vector<Vertex> vertices;
+    std::vector<uint32_t> indices;
 
-std::shared_ptr<Mesh> createGrid(int halfSize, float spacing = 1.0f);
+    MeshData(std::vector<Vertex> vertices, std::vector<uint32_t> indices)
+        : vertices(std::move(vertices)), indices(std::move(indices)) {}
+};
 
-}  // namespace MeshFactory
+namespace MeshFactory {
+
+MeshData createLine();
+MeshData createTriangle();
+MeshData createQuad();
+MeshData createCube();
+MeshData createSphere(float radius = 0.5f, int sectorCount = 64, int stackCount = 64);
+
+MeshData createGrid(int halfSize, float spacing = 1.0f);
+
+} // namespace MeshFactory
+
+} // namespace zk

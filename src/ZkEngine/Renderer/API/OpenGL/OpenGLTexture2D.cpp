@@ -1,6 +1,6 @@
 #include "ZkEngine/Renderer/API/OpenGL/OpenGLTexture2D.hpp"
 
-#include "ZkEngine/Renderer/RendererBackend.hpp"
+#include "ZkEngine/Renderer/API/OpenGL/OpenGLRenderer.hpp"
 #include "ZkEngine/Renderer/API/OpenGL/OpenGLUtils.hpp"
 
 #include "ZkEngine/Core/Base.hpp"

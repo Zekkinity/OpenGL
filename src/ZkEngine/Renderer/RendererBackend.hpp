@@ -1,31 +1,22 @@
 #pragma once
 
-// TODO:
-// Maybe this should include OpenGL specifics like glad and instead they shuld import the
-// OpenGLRenderer
-#include <filesystem>
-#include <glad/glad.h>
-
 #include <glm/glm.hpp>
 
+#include <filesystem>
+
+#include "ZkEngine/Renderer/RenderDevice.hpp"
 #include "ZkEngine/Renderer/Viewport.hpp"
 #include "ZkEngine/Renderer/Core/RenderCommand.hpp"
-#include "ZkEngine/Camera3D.hpp"
 
-enum class RendererAPI { OpenGL, Vulkan };
+enum class RenderAPI { OpenGL, Vulkan };
 
 namespace zk {
-
-class RenderPass {
-  public:
-    virtual ~RenderPass() = default;
-    virtual void execute() = 0;
-};
 
 class Scene;
 
 class RendererBackend {
   public:
+    RendererBackend(RenderAPI api);
     virtual ~RendererBackend() = default;
 
     virtual void init() = 0;
@@ -46,12 +37,14 @@ class RendererBackend {
 
     virtual void setSkybox(const std::vector<std::filesystem::path>& tex) {}
 
-    static std::unique_ptr<RendererBackend> create(RendererAPI api);
+    static std::unique_ptr<RendererBackend> create(RenderAPI api);
 
-    static RendererAPI getAPI() { return s_API; }
+    virtual RenderDevice& getDevice() = 0;
+
+    virtual RenderAPI getAPI() const { return m_API; }
 
   private:
-    inline static RendererAPI s_API = RendererAPI::OpenGL;
+    RenderAPI m_API = RenderAPI::OpenGL;
 };
 
 } // namespace zk

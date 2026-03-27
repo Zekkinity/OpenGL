@@ -1,9 +1,11 @@
 #include "MeshFactory.hpp"
+
+#include "ZkEngine/Renderer/Vertex.hpp"
 #include "glm/ext/scalar_constants.hpp"
 
 namespace zk::MeshFactory {
 
-std::shared_ptr<Mesh> createLine() {
+MeshData createLine() {
     std::vector<Vertex> vertices = {
         // position              normal           uv
         {{-0.5, -0.5, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}}, // 0
@@ -12,10 +14,10 @@ std::shared_ptr<Mesh> createLine() {
 
     std::vector<uint32_t> indices = {0, 1};
 
-    return std::make_shared<Mesh>(vertices, indices);
+    return MeshData(vertices, indices);
 }
 
-std::shared_ptr<Mesh> createTriangle() {
+MeshData createTriangle() {
     std::vector<Vertex> vertices = {
         // position              normal           uv
         {{-0.5, -0.5, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}}, // 0
@@ -32,10 +34,10 @@ std::shared_ptr<Mesh> createTriangle() {
         0 // Back
     };
 
-    return std::make_shared<Mesh>(vertices, indices);
+    return MeshData(vertices, indices);
 }
 
-std::shared_ptr<Mesh> createQuad() {
+MeshData createQuad() {
     std::vector<Vertex> vertices = {
         // position              normal           uv
         {{-0.5, -0.5, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}}, // 0
@@ -53,11 +55,11 @@ std::shared_ptr<Mesh> createQuad() {
         0 //
     };
 
-    return std::make_shared<Mesh>(vertices, indices);
+    return MeshData(vertices, indices);
 }
 
 // Creates a cube with Vertex data [position, normal, uv]
-std::shared_ptr<Mesh> createCube() {
+MeshData createCube() {
     // This cube will work for lighting
     std::vector<Vertex> vertices = {
         // FRONT (+Z)
@@ -146,10 +148,10 @@ std::shared_ptr<Mesh> createCube() {
         23,
         20};
 
-    return std::make_shared<Mesh>(vertices, indices);
+    return MeshData(vertices, indices);
 }
 
-std::shared_ptr<Mesh> createSphere(float radius, int sectorCount, int stackCount) {
+MeshData createSphere(float radius, int sectorCount, int stackCount) {
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
 
@@ -199,10 +201,10 @@ std::shared_ptr<Mesh> createSphere(float radius, int sectorCount, int stackCount
         }
     }
 
-    return std::make_shared<Mesh>(vertices, indices);
+    return MeshData(vertices, indices);
 }
 
-std::shared_ptr<Mesh> createGrid(int halfSize, float spacing) {
+MeshData createGrid(int halfSize, float spacing) {
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
 
@@ -226,9 +228,7 @@ std::shared_ptr<Mesh> createGrid(int halfSize, float spacing) {
         indices.push_back(index++);
     }
 
-    auto mesh = std::make_shared<Mesh>(vertices, indices);
-    mesh->setTriangle(false);
-    return mesh;
+    return MeshData(vertices, indices);
 }
 
 } // namespace zk::MeshFactory

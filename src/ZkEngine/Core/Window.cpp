@@ -17,7 +17,6 @@ Window::Window(const EngineSpecs& specs) : m_Specs(specs) {}
 
 Window::~Window() {
     destroy();
-    glfwTerminate();
 }
 
 void Window::create() {
@@ -61,9 +60,10 @@ void Window::create() {
 }
 
 void Window::destroy() {
-    if (m_Window)
-        glfwDestroyWindow(m_Window);
+    if (!m_Window)
+        return;
 
+    glfwDestroyWindow(m_Window);
     m_Window = nullptr;
 }
 
@@ -96,11 +96,13 @@ bool Window::isCursorLocked() const {
 
 // Maybe use cursor mode struct instead of "cursor locked"
 void Window::setCursorLocked(bool locked) {
-    if (locked) {
-        glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    } else {
-        glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-    }
+    if (m_CursorLocked == locked)
+        return;
+
+    m_CursorLocked = locked;
+
+    glfwSetInputMode(
+        m_Window, GLFW_CURSOR, m_CursorLocked ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
 }
 
 int Window::getCursorMode() const {

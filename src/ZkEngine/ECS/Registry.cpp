@@ -19,7 +19,7 @@ Registry::~Registry() {
 
 Entity Registry::createEntity() {
     uint32_t id = m_NextEntityID++;
-    return Entity(id, this);
+    return Entity(id, *this);
 }
 
 void Registry::destroyEntity(EntityID id) {

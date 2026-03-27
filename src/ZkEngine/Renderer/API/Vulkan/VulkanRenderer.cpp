@@ -2,6 +2,8 @@
 
 namespace zk {
 
+VulkanRenderer::VulkanRenderer() : RendererBackend(RenderAPI::Vulkan) {}
+
 void VulkanRenderer::init() {}
 void VulkanRenderer::update() {}
 void VulkanRenderer::renderScene(Scene& scene) {}

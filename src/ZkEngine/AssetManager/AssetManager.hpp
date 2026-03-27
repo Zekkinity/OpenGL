@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ZkEngine/Renderer/RenderDevice.hpp"
 #include "ZkEngine/Renderer/Texture.hpp"
 
 #include <filesystem>
@@ -25,7 +26,7 @@ class Shader;
 
 class AssetManager {
   public:
-    AssetManager(const std::filesystem::path& path);
+    AssetManager(const std::filesystem::path& path, RenderDevice* renderer);
     ~AssetManager();
 
     std::filesystem::path asset(const std::filesystem::path& path);
@@ -47,6 +48,7 @@ class AssetManager {
 
     // template <typename T>
     // std::unordered_map<std::string, T>& getStorage();
+
     std::shared_ptr<Texture> loadTexture(const std::filesystem::path& path, const TextureSpecs& specs = {});
 
     std::shared_ptr<Texture> loadTextureCube(const std::vector<std::filesystem::path>& faces);
@@ -67,6 +69,8 @@ class AssetManager {
     void debug();
 
   private:
+    RenderDevice* m_Device;
+    
     std::filesystem::path m_AssetRoot;
 
     std::unordered_map<std::string, std::weak_ptr<Texture>> m_LoadedTextures;

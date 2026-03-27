@@ -3,13 +3,18 @@
 #include "ZkEngine/Core/Base.hpp"
 #include "ZkEngine/Renderer/Material.hpp"
 #include "ZkEngine/Renderer/Shader.hpp"
-#include "ZkEngine/Renderer/Texture2D.hpp"
-#include "ZkEngine/Renderer/TextureCube.hpp"
+#include "ZkEngine/Renderer/Texture.hpp"
 #include "imgui.h"
 
 namespace zk {
 
-AssetManager::AssetManager(const std::filesystem::path& path) : m_AssetRoot(path) {}
+/*
+    TODO:
+    - Implement this for meshes aswell
+    Like loadMesh
+*/
+
+AssetManager::AssetManager(const std::filesystem::path& path, RenderDevice* renderer) : m_AssetRoot(path), m_Device(renderer) {}
 
 AssetManager::~AssetManager() {
     m_LoadedTextures.clear();
@@ -36,7 +41,7 @@ std::shared_ptr<Texture> AssetManager::loadTexture(const std::filesystem::path& 
     }
 
     // Load new texture
-    auto texture = Texture2D::load(texturePath, specs);
+    auto texture = m_Device->loadTexture(fullPath, specs);
     m_LoadedTextures.emplace(texturePath, texture);
 
     return texture;
@@ -50,7 +55,7 @@ std::shared_ptr<Texture> AssetManager::loadTextureCube(
         paths.push_back(fullPath);
     }
 
-    return TextureCube::load(paths);
+    return m_Device->loadTextureCube(paths);
 }
 
 std::shared_ptr<Shader> AssetManager::loadShader(
@@ -74,7 +79,7 @@ std::shared_ptr<Shader> AssetManager::loadShader(
     }
 
     // Load new shader
-    auto shader = Shader::create(vPath, fPath, gPath);
+    auto shader = m_Device->createShader(vPath, fPath, gPath);
 
     m_LoadedShaders.emplace(key, shader);
 

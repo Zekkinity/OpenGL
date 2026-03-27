@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ZkEngine/Renderer/API/OpenGL/Mesh.hpp"
+#include "ZkEngine/Renderer/Mesh.hpp"
 #include "ZkEngine/Renderer/Material.hpp"
 
 namespace zk {

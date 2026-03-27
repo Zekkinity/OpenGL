@@ -1,6 +1,6 @@
 #include "Material.hpp"
 
-#include "ZkEngine/Renderer/RendererBackend.hpp"
+#include "ZkEngine/Renderer/API/OpenGL/OpenGLRenderer.hpp"
 
 namespace zk {
 

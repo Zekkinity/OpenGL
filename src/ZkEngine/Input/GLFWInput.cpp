@@ -2,6 +2,7 @@
 
 #include "ZkEngine/Input/Input.hpp"
 #include "ZkEngine/Input/KeyCodes.hpp"
+#include "imgui.h"
 
 namespace zk::GLFWInput {
     static Input::Key TranslateKey(int glfwKey)
@@ -52,6 +53,10 @@ namespace zk::GLFWInput {
 
     void KeyCallback(GLFWwindow*, int key, int, int action, int)
     {
+        ImGuiIO& io = ImGui::GetIO();
+        if (io.WantCaptureKeyboard)
+            return;
+
         Input::Key engineKey = TranslateKey(key);
 
         if (engineKey == Input::Key::Unknown)
@@ -65,6 +70,10 @@ namespace zk::GLFWInput {
 
     void MouseButtonCallback(GLFWwindow*, int button, int action, int)
     {
+        ImGuiIO& io = ImGui::GetIO();
+        if (io.WantCaptureMouse)
+            return;
+
         Input::MouseButton engineButton = TranslateMouseButton(button);
 
         if (engineButton == Input::MouseButton::Unknown)

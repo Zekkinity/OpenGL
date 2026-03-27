@@ -5,6 +5,7 @@
 #include "ZkEngine/Utils/Time.hpp"
 #include "ZkEngine/Core/Base.hpp"
 #include "imgui.h"
+#include <GLFW/glfw3.h>
 
 namespace zk {
 
@@ -27,11 +28,12 @@ void Engine::init(const EngineSpecs& specs) {
 
     m_ImGuiLayer.init(m_Window->getWindow());
 
+    m_Renderer = RendererBackend::create(RenderAPI::OpenGL);
+
     std::filesystem::path exePath = std::filesystem::current_path();
     std::filesystem::path assetPath = exePath / "res";
-    m_AssetManager = std::make_unique<AssetManager>(assetPath);
+    m_AssetManager = std::make_unique<AssetManager>(assetPath, &m_Renderer->getDevice());
 
-    m_Renderer = RendererBackend::create(RendererAPI::OpenGL);
     m_Renderer->init();
 
     Time::init();
@@ -57,14 +59,26 @@ void Engine::run(Application& app) {
         render();
 
         m_Window->update();
+
+        if (m_CursorLocksEvent.size() > 0) {
+            m_Window->setCursorLocked(m_CursorLocksEvent.back());
+            m_CursorLocksEvent.pop_back();
+        }
     }
 }
 
 void Engine::update(float dt) {
     m_Renderer->update();
     m_App->onUpdate(dt);
+    m_SceneManager.getScene().getCameraController().update(dt);
 
-    onWindowResize(1920, 1080);
+    glm::vec2 fbSize = m_Window->getSize();
+    // Only resize if dimensions actually changed
+    if (fbSize.x != m_LastWidth || fbSize.y != m_LastHeight) {
+        m_LastWidth = fbSize.x;
+        m_LastHeight = fbSize.y;
+        onWindowResize(fbSize.x, fbSize.y);
+    }
 }
 
 void Engine::render() {
@@ -94,7 +108,14 @@ void Engine::onWindowResize(int width, int height) {
 
 void Engine::shutdown() {
     m_ImGuiLayer.shutdown();
+
+    m_Renderer.reset();
+
+    m_AssetManager.reset();
+
     m_Window.reset();
+
+    glfwTerminate();
 }
 
 void Engine::onImGuiRender() {

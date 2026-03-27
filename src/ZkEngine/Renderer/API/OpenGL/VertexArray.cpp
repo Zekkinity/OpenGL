@@ -1,6 +1,6 @@
 #include "VertexArray.hpp"
 
-#include "ZkEngine/Renderer/RendererBackend.hpp"
+#include "ZkEngine/Renderer/API/OpenGL/OpenGLRenderer.hpp"
 #include "VertexBufferLayout.hpp"
 
 namespace zk {

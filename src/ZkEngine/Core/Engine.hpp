@@ -18,12 +18,20 @@ class Engine {
     void run(Application& app);
     static Engine* Get() { return s_Instance; }
 
-    RendererBackend& getRenderer() { return *m_Renderer; }
+    RendererBackend& getRenderer() {
+        assert(m_Renderer && "Renderer not ready yet!");
+        return *m_Renderer;
+    }
     SceneManager& getSceneManager() { return m_SceneManager; }
     Window& getWindow() { return *m_Window; }
     AssetManager& getAssetManager() { return *m_AssetManager; }
 
     void toggleDebugWindow() { m_HideDebugWindow = !m_HideDebugWindow; }
+
+    void lockCursor(bool locked) {
+        m_CursorLocksEvent.push_back(locked);
+    }
+    bool isCursorLocked() { return m_Window->isCursorLocked(); }
 
   private:
     void init(const EngineSpecs& specs);
@@ -54,6 +62,11 @@ class Engine {
     float m_SimulationSpeed = 1.0f;
 
     bool m_HideDebugWindow = false;
+
+    float m_LastWidth = 0.0f;
+    float m_LastHeight = 0.0f;
+
+    std::vector<bool> m_CursorLocksEvent;
 };
 
 } // namespace zk

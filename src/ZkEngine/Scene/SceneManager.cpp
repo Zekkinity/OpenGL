@@ -30,8 +30,6 @@ void SceneManager::debug() {
     }
 
     ImGui::Checkbox("Keep Camera State", &m_MaintainCameraState);
-
-    m_CurrentScene->getLightSystem().debug();
 }
 
 } // namespace zk

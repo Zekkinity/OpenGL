@@ -34,12 +34,12 @@ class Window {
     void setWidth(int width) { m_Specs.width = width; }
     void setHeight(int height) { m_Specs.height = height; }
 
-    void makeContextCurrent() { glfwMakeContextCurrent(m_Window); }
-
   private:
     GLFWwindow* m_Window;
 
     EngineSpecs m_Specs;
+
+    bool m_CursorLocked = false;
 };
 
 } // namespace zk

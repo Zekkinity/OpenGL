@@ -1,6 +1,5 @@
-#pragma once
-
 #include "ZkEngine/Renderer/API/OpenGL/Debug/OpenGLDebug.hpp"
+
 #include "ZkEngine/Core/Base.hpp"
 
 #include <unordered_set>

@@ -2,7 +2,6 @@
 
 #include "ZkEngine/Renderer/Texture.hpp"
 
-#include <memory>
 #include <vector>
 
 namespace zk {
@@ -40,8 +39,6 @@ class Framebuffer {
 
     virtual uint32_t getWidth() const = 0;
     virtual uint32_t getHeight() const = 0;
-
-    static std::unique_ptr<Framebuffer> create(const FramebufferSpec& specs);
 };
 
 } // namespace zk

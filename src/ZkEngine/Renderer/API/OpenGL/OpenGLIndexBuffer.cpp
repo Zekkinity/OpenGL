@@ -1,8 +1,8 @@
-#include "IndexBuffer.hpp"
+#include "OpenGLIndexBuffer.hpp"
 
-#include "ZkEngine/Renderer/RendererBackend.hpp"
+#include "ZkEngine/Renderer/API/OpenGL/OpenGLRenderer.hpp"
 
-IndexBuffer::IndexBuffer(std::span<const std::uint32_t> data) : m_Count(data.size()) {
+OpenGLIndexBuffer::OpenGLIndexBuffer(std::span<const std::uint32_t> data) : m_Count(data.size()) {
     assert(sizeof(uint32_t) == sizeof(GLuint));
 
     // glGenerateBuffers(1, &m_RendererID);
@@ -12,13 +12,13 @@ IndexBuffer::IndexBuffer(std::span<const std::uint32_t> data) : m_Count(data.siz
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, data.size_bytes(), data.data(), GL_STATIC_DRAW);
 }
 
-IndexBuffer::~IndexBuffer() {
+OpenGLIndexBuffer::~OpenGLIndexBuffer() {
     glDeleteBuffers(1, &m_RendererID);
 }
 
-void IndexBuffer::bind() const {
+void OpenGLIndexBuffer::bind() const {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
 }
-void IndexBuffer::unbind() const {
+void OpenGLIndexBuffer::unbind() const {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }

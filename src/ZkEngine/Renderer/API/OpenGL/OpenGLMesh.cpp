@@ -1,10 +1,11 @@
-#include "Mesh.hpp"
+#include "OpenGLMesh.hpp"
 
 #include "VertexBufferLayout.hpp"
+#include "ZkEngine/Renderer/Renderer.hpp"
 
 namespace zk {
 
-Mesh::Mesh(std::vector<Vertex> vertices, std::vector<uint32_t> indices) :
+OpenGLMesh::OpenGLMesh(std::vector<Vertex> vertices, std::vector<uint32_t> indices) :
     m_Vertices(std::move(vertices)), m_Indices(std::move(indices)) {
     vao.bind();
     vbo = VertexBuffer::create(m_Vertices);
@@ -15,25 +16,25 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<uint32_t> indices) :
     
     vao.addBuffer(*vbo, layout);
 
-    ibo = std::make_unique<IndexBuffer>(m_Indices);
+    ibo = Renderer::getDevice().createIndexBuffer(m_Indices);
     ibo->bind();
 
     vao.unbind();
 }
 
-void Mesh::bind() const {
+void OpenGLMesh::bind() const {
     vao.bind();
 }
 
-void Mesh::unbind() const {
+void OpenGLMesh::unbind() const {
     vao.unbind();
 }
 
-IndexBuffer& Mesh::getIndexBuffer() const {
+IndexBuffer& OpenGLMesh::getIndexBuffer() const {
     return *ibo;
 }
 
-void Mesh::updateVertices(const glm::vec3& p1, const glm::vec3& p2) {
+void OpenGLMesh::updateVertices(const glm::vec3& p1, const glm::vec3& p2) {
     m_Vertices[0].position = p1;
     m_Vertices[1].position = p2;
 
@@ -42,7 +43,7 @@ void Mesh::updateVertices(const glm::vec3& p1, const glm::vec3& p2) {
 
     vao.addBuffer(*vbo, layout);
 
-    ibo = std::make_unique<IndexBuffer>(m_Indices);
+    ibo = Renderer::getDevice().createIndexBuffer(m_Indices);
     ibo->bind();
 
     vao.unbind();

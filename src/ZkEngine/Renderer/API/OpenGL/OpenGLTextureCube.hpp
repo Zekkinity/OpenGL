@@ -1,11 +1,11 @@
 #pragma once
 
-#include "ZkEngine/Renderer/TextureCube.hpp"
+#include "ZkEngine/Renderer/Texture.hpp"
 #include "ZkEngine/Utils/ImageLoader.hpp"
 
 namespace zk {
 
-class OpenGLTextureCube : public TextureCube {
+class OpenGLTextureCube : public Texture {
   public:
     OpenGLTextureCube() = delete;
 

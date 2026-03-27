@@ -16,11 +16,11 @@ struct Transform3D {
 
         model = glm::translate(model, position);
 
-        // model *= glm::mat4_cast(rotationQuat);
+        model *= glm::mat4_cast(rotationQuat);
 
-        model = glm::rotate(model, glm::radians(rotation.x), glm::vec3(1, 0, 0));
-        model = glm::rotate(model, glm::radians(rotation.y), glm::vec3(0, 1, 0));
-        model = glm::rotate(model, glm::radians(rotation.z), glm::vec3(0, 0, 1));
+        // model = glm::rotate(model, glm::radians(rotation.x), glm::vec3(1, 0, 0));
+        // model = glm::rotate(model, glm::radians(rotation.y), glm::vec3(0, 1, 0));
+        // model = glm::rotate(model, glm::radians(rotation.z), glm::vec3(0, 0, 1));
 
         model = glm::scale(model, scale);
 

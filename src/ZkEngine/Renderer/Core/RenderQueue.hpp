@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ZkEngine/Core/Base.hpp"
 #include "ZkEngine/Renderer/Core/RenderCommand.hpp"
 #include <algorithm>
 
@@ -11,6 +12,9 @@ class RenderQueue {
     ~RenderQueue() = default;
 
     void submit(const RenderCommand& cmd) {
+        ZK_CORE_ASSERT(cmd.mesh, "RenderCommand must have a mesh");
+        ZK_CORE_ASSERT(cmd.material, "RenderCommand must have a material");
+
         if (cmd.material->isTransparent())
             m_TransparentQueue.push_back(cmd);
         else

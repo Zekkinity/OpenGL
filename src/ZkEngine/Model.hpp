@@ -4,27 +4,34 @@
 #include <assimp/scene.h>
 #include <functional>
 
-#include "ZkEngine/Renderer/API/OpenGL/Mesh.hpp"
+#include "ZkEngine/ECS/Entity.hpp"
+#include "ZkEngine/Renderer/RenderDevice.hpp"
+
 #include "ZkEngine/Renderer/Material.hpp"
+#include "ZkEngine/Renderer/Vertex.hpp"
 
 namespace zk {
 
-struct MeshData {
-    std::shared_ptr<Mesh> mesh;
-    glm::vec3 diffuseColor;
+struct ModelMeshData {
+    std::vector<Vertex> vertices;
+    std::vector<uint32_t> indices;
+
     std::shared_ptr<Material> material;
+    glm::vec3 diffuseColor;
 };
 
 class Model {
   public:
     Model(const std::filesystem::path& path, std::shared_ptr<Shader> shader);
 
-    const std::vector<MeshData>& getMeshes() const;
+    void spawn(Entity parent, RenderDevice& renderer) const;
+
+    bool uploaded = false;
 
   private:
     void loadModel(const std::filesystem::path& path);
     void processNode(aiNode* node, const aiScene* scene);
-    MeshData processMesh(aiMesh* mesh, const aiScene* scene);
+    ModelMeshData processMesh(aiMesh* mesh, const aiScene* scene);
 
     // std::string loadMaterialTexture(aiMaterial* material, aiTextureType type);
     std::string loadMaterialTexture(aiMaterial* material, aiTextureType type);
@@ -35,7 +42,7 @@ class Model {
         std::function<void(std::shared_ptr<Texture>)> setter);
 
   private:
-    std::vector<MeshData> m_Meshes;
+    std::vector<ModelMeshData> m_Meshes;
 
     std::shared_ptr<Shader> m_Shader;
     std::filesystem::path m_Directory;

@@ -1,19 +1,22 @@
 #include "RendererBackend.hpp"
 
-#include "OpenGLRenderer.hpp"
-#include "ZkEngine/Renderer/VulkanRenderer.hpp"
+#include "ZkEngine/Core/Base.hpp"
+
+#include "ZkEngine/Renderer/API/OpenGL/OpenGLRenderer.hpp"
+#include "ZkEngine/Renderer/API/Vulkan/VulkanRenderer.hpp"
 
 namespace zk {
 
-std::unique_ptr<RendererBackend> RendererBackend::create(RendererAPI api) {
-    s_API = api;
+RendererBackend::RendererBackend(RenderAPI api) : m_API(api) {}
 
+std::unique_ptr<RendererBackend> RendererBackend::create(RenderAPI api) {
     switch (api) {
-    case RendererAPI::OpenGL:
+    case RenderAPI::OpenGL:
         return std::make_unique<OpenGLRenderer>();
-    case RendererAPI::Vulkan:
+    case RenderAPI::Vulkan:
         return std::make_unique<VulkanRenderer>();
     default:
+        ZK_CORE_ASSERT(false, "Unknown RenderAPI");
         return nullptr;
     }
 }
