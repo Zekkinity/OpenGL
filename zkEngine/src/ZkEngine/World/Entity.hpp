@@ -1,6 +1,7 @@
 #pragma once
 
-#include "ZkEngine/World/World.hpp"
+#include <entt/entt.hpp>
+
 #include "ZkEngine/World/Components.hpp"
 
 #include "ZkEngine/World/Camera3D.hpp"
@@ -22,8 +23,8 @@ class Entity {
         addComponent<RenderObject>(std::move(mesh), std::move(material));
     }
 
-    void addModel(Ref<Model> model, Ref<Shader> shader) {
-        addComponent<ModelComponent>(std::move(model), std::move(shader));
+    void addModel(Ref<Model> model) {
+        addComponent<ModelComponent>(std::move(model));
     }
 
     Camera3D& addCamera(const Camera3D& camera = {}) { return addComponent<Camera3D>(camera); }
@@ -39,6 +40,8 @@ class Entity {
     DirectionalLight& getDirectionalLight() { return getComponent<DirectionalLight>(); }
 
     Camera3D& getCamera() { return getComponent<Camera3D>(); }
+
+    Transform3D& getTransform() { return getComponent<Transform3D>(); }
 
     RigidBody& addRigidBody() { return addComponent<RigidBody>(); }
 
@@ -60,11 +63,11 @@ class Entity {
     T& getComponent() const {
         ZK_CORE_ASSERT(
             isValid(), "Entity is not initialized, did you forget to call createEntity()?");
-        return m_World->m_Registry.get<T>(m_EntityHandle);
+        return m_Registry->get<T>(m_EntityHandle);
     }
 
   private:
-    Entity(entt::entity entity, World* scene) : m_EntityHandle(entity), m_World(scene) {}
+    Entity(entt::entity entity, entt::registry* registry) : m_EntityHandle(entity), m_Registry(registry) {}
 
     template <typename T, typename... Args>
     T& addComponent(Args&&... args) {
@@ -72,7 +75,7 @@ class Entity {
 
         ZK_CORE_ASSERT(!hasComponent<T>(), "Entity already has a component");
 
-        return m_World->m_Registry.emplace<T>(m_EntityHandle, std::forward<Args>(args)...);
+        return m_Registry->emplace<T>(m_EntityHandle, std::forward<Args>(args)...);
     }
 
     template <typename T>
@@ -81,19 +84,19 @@ class Entity {
 
         ZK_CORE_ASSERT(!hasComponent<T>(), "Entity already has a component");
 
-        m_World->m_Registry.emplace<T>(m_EntityHandle);
+        m_Registry->emplace<T>(m_EntityHandle);
     }
 
     template <typename T>
     bool hasComponent() const {
-        return m_World->m_Registry.all_of<T>(m_EntityHandle);
+        return m_Registry->all_of<T>(m_EntityHandle);
     }
 
-    bool isValid() const { return m_World && m_World->m_Registry.valid(m_EntityHandle); }
+    bool isValid() const { return m_Registry->valid(m_EntityHandle); }
 
   private:
     entt::entity m_EntityHandle = entt::null;
-    World* m_World = nullptr;
+    entt::registry* m_Registry = nullptr;
 
     friend class World;
     friend class ModelSystem;

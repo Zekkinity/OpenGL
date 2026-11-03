@@ -6,7 +6,7 @@ namespace zk {
 
 struct PointLight {
     glm::vec3 color{1.0f};
-    float intensity = 1.0f;
+    float intensity = 250.0f;
 
     float ambient = 0.8f;
     float diffuse = 0.2f;
@@ -30,7 +30,7 @@ struct DirectionalLight {
 
 struct SpotLight {
     glm::vec3 color{1.0f};
-    float intensity = 1.0f;
+    float intensity = 250.0f;
 
     glm::vec3 direction{1.0f, 0.0f, 0.0f};
     float cutOff = glm::cos(glm::radians(12.5f));
@@ -55,6 +55,9 @@ struct GPUPointLight {
 struct GPUSpotLight {
     SpotLight light;
     glm::vec3 position;
+
+    uint32_t depthMap = 0;
+    glm::mat4 lightSpaceMatrix;
 };
 
 struct GPUDirLight {
@@ -74,7 +77,8 @@ struct DirLightUBO {
     // Dir Light
     glm::vec4 direction;
 
-    glm::vec4 intensity;
+    glm::vec4 color;
+    // glm::vec4 intensity;
 
     glm::vec4 ambient;
     glm::vec4 diffuse;
@@ -84,7 +88,7 @@ struct DirLightUBO {
 struct PointLightUBO {
     glm::vec4 position;
 
-    glm::vec4 intensity;
+    glm::vec4 color;
 
     glm::vec4 ambient;
     glm::vec4 diffuse;
@@ -101,7 +105,7 @@ struct SpotLightUBO {
     float outerCutOff;
     float pad[2];
 
-    glm::vec4 intensity;
+    glm::vec4 color;
 
     glm::vec4 ambient;
     glm::vec4 diffuse;
@@ -110,7 +114,7 @@ struct SpotLightUBO {
     glm::vec4 attenuation; // constant, linear, quadratic, farPlane
 };
 
-constexpr int MAX_POINT_LIGHTS = 16;
+constexpr int MAX_POINT_LIGHTS = 200;
 
 // NOTE: Cant pass textures like depthMap in a UBO
 struct LightsUBO {

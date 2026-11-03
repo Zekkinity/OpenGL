@@ -11,7 +11,6 @@ namespace zk {
 
 struct ModelComponent {
     Ref<Model> model;
-    Ref<Shader> shader;
     bool uploaded = false;
 };
 

@@ -16,10 +16,10 @@ enum class TextureFilter { Nearest, Linear };
 enum class TextureWrap { ClampToEdge, ClampToBorder, Repeat };
 
 struct TextureSpecs {
-    uint32_t width = 1;
-    uint32_t height = 1;
+    int width = 1;
+    int height = 1;
 
-    TextureFormat format = TextureFormat::SRGB;
+    TextureFormat format = TextureFormat::RGBA8;
 
     TextureFilter filter = TextureFilter::Linear;
     TextureWrap wrap = TextureWrap::Repeat;

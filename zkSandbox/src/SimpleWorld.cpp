@@ -19,12 +19,13 @@ void SimpleWorld::init() {
     // zk::Renderer::setSkybox(cubeMap);
 
     // auto shader = zk::Asset::loadShader("shaders/Basic.vert", "shaders/Basic.frag");
-    auto shader = zk::Asset::loadShader("shaders/Reflect.vert", "shaders/Reflect.frag");
     // auto windowTexture =
-    //     zk::Asset::loadTexture("textures/blending_transparent_window.png", zk::TextureFiltering::LINEAR);
+    //     zk::Asset::loadTexture("textures/blending_transparent_window.png",
+    //     zk::TextureFiltering::LINEAR);
 
-    std::shared_ptr<zk::Mesh> cubeMesh = GetAssets().getMesh(zk::PrimitiveType::Cube);
+    auto shader = zk::Asset::loadShader("shaders/Reflect.vert", "shaders/Reflect.frag");
     redMaterial = zk::Asset::loadMaterial({shader});
+    std::shared_ptr<zk::Mesh> cubeMesh = GetAssets().getMesh(zk::PrimitiveType::Cube);
     // redMaterial->setColor({0.0f, 1.0f, 0.0f, 0.2f});
     redMaterial->setBlendMode(zk::BlendMode::TRANSPARENT);
 
@@ -47,9 +48,10 @@ void SimpleWorld::init() {
     // auto backpackModel = zk::Asset::loadModel("models/backpack/backpack.obj");
 
     auto explodeShader = zk::Asset::loadShader("shaders/Basic.vert", "shaders/Basic.frag");
-    // auto explodeShader = zk::Asset::loadShader("shaders/Basic.vert", "shaders/Basic.frag", "shaders/Geometry.geom");
+    // auto explodeShader = zk::Asset::loadShader("shaders/Basic.vert", "shaders/Basic.frag",
+    // "shaders/Geometry.geom");
 
-    backpack.addModel(mustangModel, explodeShader);
+    backpack.addModel(mustangModel);
     backpack.setPosition({0.0f, 0.0f, -5.0f});
     backpack.setScale({5.0f, 5.0f, 5.0f});
 
@@ -72,7 +74,8 @@ void SimpleWorld::init() {
     dirtSpecs.filter = zk::TextureFilter::Nearest;
     auto dirtTexture = zk::Asset::loadTexture("textures/default_dirt.png", dirtSpecs);
     // auto dirtTexture = zk::Asset::loadTexture("textures/UV_MAP1K.jpg");
-    auto dirtMaterial = zk::Asset::loadMaterial(zk::MaterialSpecs{.shader = dirtShader, .diffuse = dirtTexture});
+    auto dirtMaterial =
+        zk::Asset::loadMaterial(zk::MaterialSpecs{.shader = dirtShader, .diffuse = dirtTexture});
 
     for (int i = 0; i < 10; i++) {
         for (int j = 0; j < 10; j++) {

@@ -38,6 +38,17 @@ AssetManager::AssetManager(RenderDevice& device, const std::filesystem::path& ro
             .height = 1,
             .channels = 3,
         });
+
+    // black texture
+    uint8_t blackPixel[4] = {0, 0, 0, 255};
+    m_BlackTexture = m_Device.createTexture(
+        {},
+        {
+            .data = blackPixel,
+            .width = 1,
+            .height = 1,
+            .channels = 4,
+        });
 }
 
 AssetManager::~AssetManager() {
@@ -92,6 +103,17 @@ Ref<Texture> AssetManager::loadTextureCube(const std::vector<std::filesystem::pa
     return m_Device.loadTextureCube(paths);
 }
 
+Ref<Texture> AssetManager::loadTextureHDR(const std::string& path) {
+    if (path.empty()) {
+        ZK_CORE_ERROR("Invalid texture path");
+        return nullptr;
+    }
+
+    std::string texturePath = normalizePath(path);
+
+    return m_Device.loadTextureHDR(texturePath);
+}
+
 Ref<Shader> AssetManager::loadShader(
     std::string_view vertexPath, std::string_view fragmentPath, std::string_view geometryPath) {
     if (vertexPath.empty() || fragmentPath.empty()) {
@@ -130,7 +152,6 @@ Ref<Material> AssetManager::loadMaterial(const MaterialSpecs& specs) {
 
     return createRef<Material>(specs, this);
 }
-
 
 Ref<Model> AssetManager::loadModel(const std::filesystem::path& path) {
     if (path.empty()) {

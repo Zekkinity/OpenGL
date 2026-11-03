@@ -4,3 +4,4 @@ notes.*
 compile_commands.json
 imgui.ini
 scripts/
+.idea/

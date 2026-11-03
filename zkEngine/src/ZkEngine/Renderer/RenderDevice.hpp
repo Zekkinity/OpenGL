@@ -66,6 +66,8 @@ class RenderDevice {
     virtual Ref<Texture> createTexture(
         const TextureSpecs& specs, const ImageData& imageData = {}) = 0;
 
+    virtual Ref<Texture> loadTextureHDR(const std::string& path) = 0;
+
     virtual Ref<Texture> loadTextureCube(const std::vector<std::filesystem::path>& faces) = 0;
     virtual Ref<Texture> createTextureCube(const TextureSpecs& specs) = 0;
 

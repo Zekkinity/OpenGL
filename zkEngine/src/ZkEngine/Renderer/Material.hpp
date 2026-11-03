@@ -20,6 +20,12 @@ struct MaterialSpecs {
     Ref<Texture> specular = nullptr;
     Ref<Texture> normal = nullptr;
     Ref<Texture> height = nullptr;
+
+    Ref<Texture> metallic = nullptr;
+    Ref<Texture> roughness = nullptr;
+
+    Ref<Texture> metallicRoughness = nullptr;
+    Ref<Texture> ao = nullptr;
 };
 
 class Material {
@@ -33,13 +39,25 @@ class Material {
 
     void unbind() const;
 
-    void setShader(Ref<Shader> shader) { m_Specs.shader = shader; }
+    // Override default GBuffer shader
+    void setShader(Ref<Shader> shader) { m_Shader = shader; }
 
     // Textures
     void setDiffuse(Ref<Texture> texture) { m_Specs.diffuse = texture; }
     void setSpecular(Ref<Texture> texture) { m_Specs.specular = texture; }
     void setShininess(float shininess) { m_Shininess = shininess; }
     void setNormal(Ref<Texture> texture) { m_Specs.normal = texture; }
+
+    // gltf metallic roughness
+    void setMetallicRoughness(Ref<Texture> metallicRoughness) {
+        m_Specs.metallicRoughness = metallicRoughness;
+    }
+
+    void setAmbientOcclusion(Ref<Texture> ao) { m_Specs.ao = ao; }
+
+    // For individual textures
+    void setMetallic(Ref<Texture> texture) { m_Specs.metallic = texture; }
+    void setRoughness(Ref<Texture> texture) { m_Specs.roughness = texture; }
 
     void setTextures(bool enable) { m_UseTextures = enable; }
     void setNormalMapping(bool enable) { m_NormalMapping = enable; }
@@ -60,10 +78,11 @@ class Material {
 
     bool isTransparent() const { return m_BlendMode != BlendMode::OPAQUE; }
 
-    Shader& getShader() const { return *m_Specs.shader; }
+    Shader& getShader() const { return *m_Shader; }
 
   private:
     MaterialSpecs m_Specs;
+    Ref<Shader> m_Shader;
 
     AssetManager* m_AssetManager = nullptr;
 

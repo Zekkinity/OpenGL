@@ -27,12 +27,6 @@ class PhysicsWorld : public zk::World {
     std::shared_ptr<zk::Texture> m_BoxSpecularMap;
     std::shared_ptr<zk::Material> m_BoxMaterial;
 
-    // Light source
-    std::shared_ptr<zk::Shader> m_LightSourceShader;
-    std::shared_ptr<zk::Material> m_LightSourceMaterial;
-
-    glm::vec3 m_LightColor = {1.0f, 1.0f, 1.0f};
-
     glm::vec3 lightSourcePos = glm::vec3(0.0f, 5.0f, 0.0f);
     glm::vec3 lightSourcePos2 = glm::vec3(0.0f, 5.0f, 0.0f);
 
@@ -45,7 +39,7 @@ class PhysicsWorld : public zk::World {
     float m_LightQuadratic = 0.032;
 
     // FlashLight
-    zk::Entity m_SpotLight = createEntity();
+    zk::Entity m_SpotLight;
     zk::Entity m_DirLight = createEntity();
 
     zk::Entity m_LightSource = createEntity();

@@ -27,6 +27,8 @@ class OpenGLDevice : public RenderDevice {
         const std::filesystem::path& path, const TextureSpecs& specs = {}) override;
     Ref<Texture> createTexture(const TextureSpecs& specs, const ImageData& imageData = {}) override;
 
+    Ref<Texture> loadTextureHDR(const std::string& path) override;
+
     Ref<Texture> loadTextureCube(const std::vector<std::filesystem::path>& faces) override;
     Ref<Texture> createTextureCube(const TextureSpecs& specs) override;
 

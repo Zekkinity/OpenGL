@@ -1,38 +1,42 @@
-// #pragma once
-//
-// #include "ZkEngine/Renderer/Core/RenderPass.hpp"
-//
-// namespace zk {
-//
-// class Shader;
-// class Framebuffer;
-// class OpenGLRenderer;
-//
-// class BloomPass : public RenderPass {
-//   public:
-//     BloomPass(OpenGLRenderer* renderer);
-//     ~BloomPass();
-//
-//     void execute(const RenderContext& ctx, const RenderView& view) override;
-//     void debug() override;
-//
-//     uint32_t getOutputTexture() const { return m_OutputTexture; }
-//
-//   private:
-//     void drawFullscreenQuad();
-//
-//   private:
-//     OpenGLRenderer* m_Renderer = nullptr;
-//
-//     uint32_t m_OutputTexture = 0;
-//
-//     std::array<Scope<Framebuffer>, 2> m_BlurFBO;
-//     Ref<Shader> m_BlurShader;
-//
-//     int m_Iterations = 3;
-//
-//     uint32_t m_QuadVAO = 0;
-//     uint32_t m_QuadVBO = 0;
-// };
-//
-// } // namespace zk
+#pragma once
+
+#include "ZkEngine/Renderer/Core/RenderPass.hpp"
+
+namespace zk {
+
+struct BloomMip {
+    glm::vec2 size;
+    glm::ivec2 intSize;
+    uint32_t texture = 0;
+};
+
+class RenderDevice;
+class Framebuffer;
+class Shader;
+
+class BloomPass {
+  public:
+    BloomPass(RenderDevice* device);
+    ~BloomPass();
+
+    uint32_t execute(uint32_t srcTexture);
+    void debug();
+
+  private:
+    void renderDownsamples(uint32_t srcTexture);
+    void renderUpsamples();
+
+  private:
+    RenderDevice* m_Device = nullptr;
+
+    uint32_t m_BloomFBO;
+
+    std::vector<BloomMip> m_MipChain;
+
+    Ref<Shader> m_DownsampleShader;
+    Ref<Shader> m_UpsampleShader;
+
+    float m_FilterRadius = 0.001f;
+};
+
+} // namespace zk

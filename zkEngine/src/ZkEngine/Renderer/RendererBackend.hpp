@@ -4,6 +4,8 @@
 
 #include <glm/glm.hpp>
 
+#include "ZkEngine/Renderer/API/OpenGL/Passes/BloomPass.hpp"
+#include "ZkEngine/Renderer/API/OpenGL/Passes/ShadowPass.hpp"
 #include "ZkEngine/Renderer/BatchRenderer.hpp"
 #include "ZkEngine/Renderer/Core/RenderQueue.hpp"
 #include "ZkEngine/Renderer/RenderDevice.hpp"
@@ -65,11 +67,9 @@ class RendererBackend {
     void updateCamera(const CameraData& camera);
     void updateLights(const LightData& data);
 
-    AABB transformAABB(const AABB& box, const glm::mat4& model) const;
-
     bool isVisible(const Frustum& frustum, const AABB& box) const;
 
-    void postProcessPass(uint32_t sceneColor);
+    void postProcessPass(uint32_t sceneColor, uint32_t bloomTexture);
 
   protected:
     RenderQueue m_RenderQueue;
@@ -88,6 +88,9 @@ class RendererBackend {
 
     bool m_FrustumCulling = true;
 
+    Scope<ShadowPass> m_ShadowPass;
+
+    Scope<BloomPass> m_BloomPass;
     // postprocess
     Ref<Shader> m_PostProcessShader;
 
@@ -96,6 +99,9 @@ class RendererBackend {
     bool m_HDR = true;
 
     float m_Exposure = 1.0f;
+
+    bool m_Bloom = false;
+    float m_BloomStrength = 0.04f;
 };
 
 } // namespace zk

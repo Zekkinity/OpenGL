@@ -32,8 +32,8 @@ class OpenGLShader : public Shader {
     void setFloat3(const std::string& name, float v0, float v1, float v2) override;
     void setFloat4(const std::string& name, float v0, float v1, float v2, float v3) override;
 
+    void setVec2(const std::string& name, const glm::vec2& value) override;
     void setVec3(const std::string& name, const glm::vec3& value) override;
-
     void setVec4(const std::string& name, const glm::vec4& value) override;
 
     void setMat4(const std::string& name, const glm::mat4& matrix) override;

@@ -28,15 +28,8 @@ struct InstanceData {
     glm::vec4 color;
 };
 
-struct DrawContext {
-    Shader* shader = nullptr;
-    std::function<void(Shader&)> bindShader;
-    std::function<void(Material*, Shader&)> bindMaterial;
-};
-
 class RenderQueue;
 class RenderDevice;
-class DrawContext;
 class InstanceBuffer;
 
 class BatchRenderer {
@@ -46,7 +39,8 @@ class BatchRenderer {
 
     void build(const RenderQueue& m_RenderQueue);
     void updateInstances();
-    void draw(const DrawContext& ctx);
+
+    const std::vector<Batch>& getBatches() const { return m_Batches; }
 
     void debug();
 
@@ -57,8 +51,6 @@ class BatchRenderer {
     std::vector<Batch> m_Batches;
     std::vector<InstanceData> m_AllInstances;
     Scope<InstanceBuffer> m_InstanceBuffer;
-    Shader* m_CurrentShader = nullptr;
-    Material* m_CurrentMaterial = nullptr;
 
     RenderDevice* m_Device = nullptr;
 };

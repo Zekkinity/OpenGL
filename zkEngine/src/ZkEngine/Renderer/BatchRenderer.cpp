@@ -84,41 +84,6 @@ void BatchRenderer::updateInstances() {
     m_InstanceBuffer->bind();
 }
 
-void BatchRenderer::draw(const DrawContext& ctx) {
-    // int i = 0;
-    for (const auto& batch : m_Batches) {
-        // ZK_CORE_DEBUG(
-        //     "Batch {}/{}, Instances: {}, Offset: {}",
-        //     ++i,
-        //     m_Batches.size(),
-        //     batch.instanceCount,
-        //     batch.instanceOffset);
-
-        Shader& shader = *ctx.shader;
-        Material* material = batch.key.material.get();
-
-        // Update shader
-        if (&shader != m_CurrentShader) {
-            ctx.bindShader(shader);
-
-            m_CurrentShader = &shader;
-        }
-
-        // Update material
-        if (material != m_CurrentMaterial) {
-            ctx.bindMaterial(material, shader);
-            m_CurrentMaterial = material;
-        }
-
-        batch.key.mesh->bind();
-
-        m_Device->drawBatch(batch);
-    }
-
-    m_CurrentShader = nullptr;
-    m_CurrentMaterial = nullptr;
-}
-
 void BatchRenderer::setupInstancing(Mesh* mesh) {
     mesh->bind();
 

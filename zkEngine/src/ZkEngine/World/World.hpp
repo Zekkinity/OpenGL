@@ -10,6 +10,8 @@
 #include "ZkEngine/World/Camera3D.hpp"
 #include "ZkEngine/Physics/PhysicsSystem.hpp"
 
+#include "ZkEngine/World/Entity.hpp"
+
 namespace zk {
 
 struct Frustum {
@@ -36,7 +38,6 @@ struct CameraData {
 
 struct RenderView;
 class RendererBackend;
-class Entity;
 class PlayerController;
 class Shader;
 
@@ -95,15 +96,20 @@ class World {
 
     AssetManager& GetAssets() { return *m_AssetManager; }
 
-    // Entity SpawnPointLight();
+    Entity SpawnPointLight(const PointLight& light = {});
+    Entity SpawnDirLight(const DirectionalLight& light = {});
 
   private:
     Entity createCamera(const CameraConfig& config = {});
     Frustum getFrustum(const glm::mat4& proj, const glm::mat4& view) const;
 
+    void getEntity();
+
   private:
     entt::registry m_Registry;
     // std::unordered_map<UUID, entt::entity> m_EnityMap;
+
+    Entity m_SelectedEntity;
 
     PhysicsSystem m_PhysicsSystem;
 

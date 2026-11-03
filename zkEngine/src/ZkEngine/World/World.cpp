@@ -15,6 +15,10 @@
 #include <glm/gtx/norm.hpp>
 #include <glm/gtx/quaternion.hpp>
 
+#include "ZkEngine/Physics/RayCast.hpp"
+
+#include "ZkEngine/Input/Input.hpp"
+
 namespace zk {
 
 World::World() {}
@@ -39,7 +43,7 @@ void World::onInit(AssetManager* assetManager) {
 }
 
 Entity World::createEntity() {
-    Entity entity = {m_Registry.create(), this};
+    Entity entity = {m_Registry.create(), &m_Registry};
     entity.addComponent<Transform3D>();
 
     return entity;
@@ -182,6 +186,12 @@ void World::onUpdate(float dt) {
         renderObject.material->setColor({pointLight.color, 1.0f});
     }
 
+    // Get entity
+    if (Input::IsMousePressed(MouseButton::Left)) {
+        ZK_CORE_DEBUG("RAYCASTING");
+        getEntity();
+    }
+
     update(dt);
 }
 
@@ -250,26 +260,53 @@ std::vector<RenderView> World::getRenderViews(RendererBackend& renderer) const {
     return views;
 }
 
+// usage:
+// Entity light = SpawnLight(LightType::Point);
+
+// Entity World::SpawnLight(LightType lightType) {
+//     switch (lightType) {
+//     case LightType::Point:
+//         return SpawnPointLight();
+//     case LightType::Spot:
+//         return SpawnSpotLight();
+//     case LightType::Directional:
+//         return SpawnDirectionalLight();
+//     }
+// }
+
+Entity World::SpawnPointLight(const PointLight& light) {
+    Entity pointLight = createEntity();
+    // Ref<Mesh> mesh = m_AssetManager->getMesh(PrimitiveType::Sphere);
+    // Ref<Material> material = m_AssetManager->loadMaterial({});
+    // Ref<Shader> shader =
+    //     m_AssetManager->loadShader("shaders/GBufferLights.vert", "shaders/GBufferLights.frag");
+    // material->setShader(shader);
+    // pointLight.addRenderable(mesh, material);
+    // spotlight.setColor({5.0f, 0.0f, 0.0f, 1.0f});
+
+    // pointLight.setScale(glm::vec3(0.50f));
+    // pointLight.setScale(glm::vec3(0.25f));
+    pointLight.addPointLight(light);
+
+    return pointLight;
+}
+
+Entity World::SpawnDirLight(const DirectionalLight& light) {
+    Entity dirLight = createEntity();
+    dirLight.addDirectionalLight(light);
+    return dirLight;
+}
+
 void World::onDebug() {
     // TODO: Check for maximum number of lights
 
-    auto count = m_Registry.view<RenderObject, Transform3D>().size_hint();
+    size_t count = m_Registry.view<RenderObject, Transform3D>().size_hint();
     ImGui::Text("Render Objects: %zu", count);
 
     ImGui::Text("Light System");
     if (ImGui::TreeNode("PointLights")) {
         if (ImGui::Button("Add")) {
-            auto spotlight = createEntity();
-            auto mesh = m_AssetManager->getMesh(PrimitiveType::Cube);
-            auto material = m_AssetManager->loadMaterial(
-                {.shader = m_AssetManager->loadShader(
-                     "shaders/lighting.vert", "shaders/lightSource.frag")});
-            spotlight.addRenderable(mesh, material);
-            // spotlight.setColor({5.0f, 0.0f, 0.0f, 1.0f});
-
-            // spotlight.setPosition(getCamera()->getPosition());
-            spotlight.setScale(glm::vec3(0.25f));
-            spotlight.addPointLight({.color = glm::vec3(1.0f, 1.0f, 1.0f)});
+            SpawnPointLight();
         }
 
         auto view = m_Registry.view<PointLight, Transform3D>();
@@ -281,8 +318,8 @@ void World::onDebug() {
 
             ImGui::Text("ID: %u", entity);
             ImGui::SliderFloat3("Position", &transform.position.x, -100.0f, 100.0f);
-            ImGui::SliderFloat3("Color", &pointLight.color.x, 0.0f, 1.0f);
-            ImGui::SliderFloat("Itensity", &pointLight.intensity, 0.0f, 100.0f);
+            ImGui::ColorEdit3("Color", &pointLight.color.x);
+            ImGui::SliderFloat("Itensity", &pointLight.intensity, 0.0f, 10000.0f);
             ImGui::SliderFloat("Linear", &pointLight.linear, 0.0f, 1.0f);
             ImGui::SliderFloat("Quadratic", &pointLight.quadratic, 0.0f, 0.5f);
             ImGui::SliderFloat("Ambient", &pointLight.ambient, 0.0f, 1.0f);
@@ -317,7 +354,7 @@ void World::onDebug() {
             ImGui::Text("ID: %u", entity);
             ImGui::SliderFloat3("Direction", &dirLight.direction.x, -1.0f, 1.0f);
             ImGui::SliderFloat("Itensity", &dirLight.intensity, 0.0f, 100.0f);
-            ImGui::SliderFloat3("Color", &dirLight.color.x, 0.0f, 1.0f);
+            ImGui::ColorEdit3("Color", &dirLight.color.x);
 
             if (ImGui::Button("Delete")) {
                 m_Registry.destroy(entity);
@@ -330,6 +367,11 @@ void World::onDebug() {
     }
 
     if (ImGui::TreeNode("SpotLights")) {
+        if (ImGui::Button("Add")) {
+            auto dirLight = createEntity();
+            dirLight.addSpotLight({.direction = {-0.2f, -1.0f, -0.3f}});
+        }
+
         auto view = m_Registry.view<SpotLight, Transform3D>();
 
         ImGui::Text("Spot Lights: %zu", view.size_hint());
@@ -340,8 +382,8 @@ void World::onDebug() {
             ImGui::Text("Spot Light %u", entity);
             ImGui::SliderFloat3("Position", &transform.position.x, -100.0f, 100.0f);
             ImGui::SliderFloat3("Direction", &spotLight.direction.x, -1.0f, 1.0f);
-            ImGui::SliderFloat3("Color", &spotLight.color.x, 0.0f, 1.0f);
-            ImGui::SliderFloat("Itensity", &spotLight.intensity, 0.0f, 100.0f);
+            ImGui::ColorEdit3("Color", &spotLight.color.x);
+            ImGui::SliderFloat("Itensity", &spotLight.intensity, 0.0f, 10000.0f);
             ImGui::SliderFloat("Inner", &spotLight.cutOff, 0.0f, 1.0f);
             ImGui::SliderFloat("Outer", &spotLight.outerCutOff, 0.0f, 1.0f);
             ImGui::SliderFloat("Linear", &spotLight.linear, 0.0f, 1.0f);
@@ -357,16 +399,16 @@ void World::onDebug() {
         ImGui::TreePop();
     }
 
-    auto view = m_Registry.view<Camera3D, Transform3D>();
+    auto camView = m_Registry.view<Camera3D, Transform3D>();
 
-    ImGui::Text("Cameras: %zu", view.size_hint());
+    ImGui::Text("Cameras: %zu", camView.size_hint());
 
     static std::unordered_map<entt::entity, glm::vec2> angles;
     static std::unordered_set<entt::entity> initialized;
 
     int i = 0;
-    for (auto [entity, camera, transform] : view.each()) {
-        ImGui::PushID(i++);
+    for (auto [entity, camera, transform] : camView.each()) {
+        ImGui::PushID((uint32_t)entity);
 
         const bool isActive = (entity == m_ActiveCamera);
         const bool isEditor = (entity == m_EditorCamera);
@@ -383,7 +425,7 @@ void World::onDebug() {
         // --- Actions ---
         if (!isActive) {
             if (ImGui::Button("Set Active")) {
-                setActiveCamera(Entity{entity, this});
+                setActiveCamera(Entity{entity, &m_Registry});
             }
         }
         else {
@@ -435,14 +477,20 @@ void World::onDebug() {
 
         ImGui::PopID();
     }
+
+    if (m_SelectedEntity.m_EntityHandle != entt::null) {
+        ImGui::Text("Selected Entity: %u", m_SelectedEntity.m_EntityHandle);
+        auto& transform = m_SelectedEntity.getTransform();
+        ImGui::SliderFloat3("Position", &transform.position.x, -100.0f, 100.0f);
+    }
 }
 
 Entity World::getActiveCamera() const {
-    return Entity(m_ActiveCamera, const_cast<World*>(this));
+    return Entity(m_ActiveCamera, const_cast<entt::registry*>(&m_Registry));
 }
 
 Entity World::getEditorCamera() const {
-    return Entity(m_EditorCamera, const_cast<World*>(this));
+    return Entity(m_EditorCamera, const_cast<entt::registry*>(&m_Registry));
 }
 
 void World::setActiveCamera(Entity newCamera) {
@@ -456,7 +504,7 @@ std::vector<Entity> World::getCameras() const {
     auto view = m_Registry.view<Camera3D>();
 
     for (auto entity : view) {
-        cameras.push_back(Entity(entity, const_cast<World*>(this)));
+        cameras.push_back(Entity(entity, const_cast<entt::registry*>(&m_Registry)));
     }
 
     return cameras;
@@ -466,6 +514,36 @@ void World::swapCameras() {
     std::swap(m_ActiveCamera, m_EditorCamera);
 
     m_PlayerController->setCamera(getActiveCamera());
+}
+
+void World::getEntity() {
+    Utils::Ray ray = Utils::makeRayFromScreenCenter(1920, 1080, getActiveCamera());
+
+    auto view = m_Registry.view<Transform3D, RenderObject>();
+
+    float closestT = std::numeric_limits<float>::max();
+    entt::entity closest = entt::null;
+
+    for (auto entity : view) {
+        auto& transform = view.get<Transform3D>(entity);
+        const AABB& aabb =
+            view.get<RenderObject>(entity).mesh->getAABB().transform(transform.getMatrix());
+
+        float t;
+        constexpr float radius = 1.0f;
+
+        // if (Utils::raySphereIntersect(ray, transform.position, radius, t)) {
+        if (Utils::rayAABBIntersect(ray, aabb, t)) {
+            if (t < closestT) {
+                closestT = t;
+                closest = entity;
+            }
+        }
+    }
+
+    if (closest != entt::null) {
+        m_SelectedEntity = Entity(closest, &m_Registry);
+    }
 }
 
 } // namespace zk

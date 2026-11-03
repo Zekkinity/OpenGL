@@ -27,6 +27,7 @@ class Shader {
     virtual void setFloat(const std::string& name, float value) = 0;
     virtual void setFloat3(const std::string& name, float v0, float v1, float v2) = 0;
     virtual void setFloat4(const std::string& name, float v0, float v1, float v2, float v3) = 0;
+    virtual void setVec2(const std::string& name, const glm::vec2& value) = 0;
     virtual void setVec3(const std::string& name, const glm::vec3& value) = 0;
     virtual void setVec4(const std::string& name, const glm::vec4& value) = 0;
     virtual void setMat4(const std::string& name, const glm::mat4& matrix) = 0;

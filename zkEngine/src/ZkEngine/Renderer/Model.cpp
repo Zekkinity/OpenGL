@@ -137,24 +137,36 @@ ModelMeshData Model::processMesh(aiMesh* mesh, const aiScene* scene) {
             aiMaterial* aiMaterial = scene->mMaterials[materialIndex];
 
             // loadTextureType(aiMaterial, aiTextureType_BASE_COLOR, [&](Ref<Texture> texture) {
+            //     ZK_CORE_DEBUG("Loaded Base Color: ");
             //     material->setDiffuse(texture);
             // });
             loadTextureType(aiMaterial, aiTextureType_DIFFUSE, [&](Ref<Texture> texture) {
+                // ZK_CORE_DEBUG("Loaded Diffuse: ");
                 material->setDiffuse(texture);
             });
 
             loadTextureType(aiMaterial, aiTextureType_SPECULAR, [&](Ref<Texture> texture) {
+                // ZK_CORE_DEBUG("Loaded Specular: ");
                 material->setSpecular(texture);
             });
 
             // Doesnt work for .obj
             loadTextureType(aiMaterial, aiTextureType_NORMALS, [&](Ref<Texture> texture) {
+                // ZK_CORE_DEBUG("Loaded Normal: ");
                 material->setNormal(texture);
             });
 
-            // loadTextureType(aiMaterial, aiTextureType_HEIGHT, [&](Ref<Texture> texture) {
-            //     material->setNormal(texture);
-            // });
+            // GLTF
+            loadTextureType(
+                aiMaterial, aiTextureType_GLTF_METALLIC_ROUGHNESS, [&](Ref<Texture> texture) {
+                    // ZK_CORE_DEBUG("Loaded Metallic Roughness");
+                    material->setMetallicRoughness(texture);
+                });
+
+            loadTextureType(aiMaterial, aiTextureType_AMBIENT_OCCLUSION, [&](Ref<Texture> texture) {
+                // ZK_CORE_DEBUG("Loaded Ambient Occlusion");
+                material->setAmbientOcclusion(texture);
+            });
 
             aiColor3D color;
             aiMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, color);
@@ -188,7 +200,9 @@ void Model::loadTextureType(
         if (texturePath.empty())
             return;
 
-        auto texture = Asset::loadTexture(texturePath);
+        Ref<Texture> texture;
+        texture = Asset::loadTexture(texturePath);
+
         setter(texture);
     }
 }

@@ -19,9 +19,9 @@ AppTest::AppTest() {
 void AppTest::onInit() {
     // zk::GetWorldManager().setWorld<ElectronWorld>();
     // zk::GetWorldManager().setWorld<BallWorld>();
-    // zk::GetWorldManager().setWorld<SimpleWorld>();
     // getWorldManager().setWorld<MinecraftWorld>();
 
+    // getWorldManager().setWorld<SimpleWorld>();
     getWorldManager().setWorld<PhysicsWorld>();
     // getWorldManager().setWorld<SponzaWorld>();
 }
@@ -79,7 +79,7 @@ void AppTest::onImGuiRender() {
     if (ImGui::Combo(
             "World",
             &m_CurrentWorld,
-            "PhysicsWorld\0ElectronWorld\0BallWorld\0SimpleWorld\0MinecraftWorld\0")) {
+            "PhysicsWorld\0ElectronWorld\0BallWorld\0SimpleWorld\0MinecraftWorld\0SponzaWorld\0\0")) {
         if (m_CurrentWorld == 1) {
             getWorldManager().setWorld<PhysicsWorld>();
         }
@@ -94,6 +94,9 @@ void AppTest::onImGuiRender() {
         }
         else if (m_CurrentWorld == 5) {
             getWorldManager().setWorld<MinecraftWorld>();
+        }
+        else if (m_CurrentWorld == 6) {
+            getWorldManager().setWorld<SponzaWorld>();
         }
     }
 

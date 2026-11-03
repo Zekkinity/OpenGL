@@ -9,6 +9,30 @@ namespace zk {
 struct AABB {
     glm::vec3 min;
     glm::vec3 max;
+
+    AABB transform(const glm::mat4& model) const {
+        glm::vec3 corners[8] = {
+            {min.x, min.y, min.z},
+            {max.x, min.y, min.z},
+            {min.x, max.y, min.z},
+            {max.x, max.y, min.z},
+            {min.x, min.y, max.z},
+            {max.x, min.y, max.z},
+            {min.x, max.y, max.z},
+            {max.x, max.y, max.z},
+        };
+
+        glm::vec3 newMin(FLT_MAX);
+        glm::vec3 newMax(-FLT_MAX);
+
+        for (int i = 0; i < 8; i++) {
+            glm::vec3 world = glm::vec3(model * glm::vec4(corners[i], 1.0));
+            newMin = glm::min(newMin, world);
+            newMax = glm::max(newMax, world);
+        }
+
+        return {newMin, newMax};
+    }
 };
 
 class InstanceBuffer;

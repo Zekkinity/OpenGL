@@ -47,7 +47,7 @@ void MinecraftWorld::buildFloor() {
 
     auto grass = createEntity();
     auto model = GetAssets().loadModel("models/grass/grass.fbx");
-    grass.addModel(model, m_LightShader);;
+    grass.addModel(model);
     grass.setScale({10.0f, 10.0f, 10.0f});
     grass.setPosition({0.0f, 30.0f, 0.0f});
 }

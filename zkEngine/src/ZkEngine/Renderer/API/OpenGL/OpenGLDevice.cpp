@@ -61,6 +61,24 @@ Ref<Texture> OpenGLDevice::createTexture(const TextureSpecs& specs, const ImageD
     return createRef<OpenGLTexture2D>(specs, imageData);
 }
 
+Ref<Texture> OpenGLDevice::loadTextureHDR(const std::string& path) {
+    auto image = ImageLoader::load(path, false);
+
+    TextureSpecs finalSpecs{
+        .width = image.width,
+        .height = image.height,
+        .format = TextureFormat::RGBA16F,
+        .filter = TextureFilter::Linear,
+        .wrap = TextureWrap::ClampToEdge,
+    };
+
+    Ref<OpenGLTexture2D> texture = createRef<OpenGLTexture2D>(finalSpecs, image);
+
+    ImageLoader::free(image);
+
+    return texture;
+}
+
 Ref<Texture> OpenGLDevice::loadTextureCube(const std::vector<std::filesystem::path>& faces) {
     ZK_CORE_ASSERT(faces.size() == 6, "TextureCube must have 6 faces!");
 

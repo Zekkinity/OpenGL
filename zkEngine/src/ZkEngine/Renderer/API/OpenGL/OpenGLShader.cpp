@@ -157,6 +157,10 @@ void OpenGLShader::setFloat4(const std::string& name, float v0, float v1, float 
     glUniform4f(getUniformLocation(name), v0, v1, v2, v3);
 }
 
+void OpenGLShader::setVec2(const std::string& name, const glm::vec2& value) {
+    glUniform2fv(getUniformLocation(name), 1, glm::value_ptr(value));
+}
+
 void OpenGLShader::setVec3(const std::string& name, const glm::vec3& value) {
     glUniform3fv(getUniformLocation(name), 1, glm::value_ptr(value));
 }

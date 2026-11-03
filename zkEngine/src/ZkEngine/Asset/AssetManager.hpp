@@ -43,6 +43,8 @@ class AssetManager {
   public:
     Ref<Texture> loadTexture(const std::filesystem::path& path, const TextureSpecs& specs = {});
 
+    Ref<Texture> loadTextureHDR(const std::string& path);
+
     Ref<Texture> loadTextureCube(const std::vector<std::filesystem::path>& faces);
 
     Ref<Material> loadMaterial(const MaterialSpecs& specs);
@@ -57,6 +59,7 @@ class AssetManager {
     Ref<Mesh> getMesh(PrimitiveType type);
 
     Ref<Texture> getWhiteTexture() const { return m_WhiteTexture; }
+    Ref<Texture> getBlackTexture() const { return m_BlackTexture; }
     Ref<Texture> getDefaultNormal() const { return m_DefaultNormal; }
 
     void clearUnused();
@@ -83,6 +86,7 @@ class AssetManager {
     std::unordered_map<std::string, std::weak_ptr<Mesh>> m_LoadedMeshes;
 
     Ref<Texture> m_WhiteTexture;
+    Ref<Texture> m_BlackTexture;
     Ref<Texture> m_DefaultNormal;
 };
 

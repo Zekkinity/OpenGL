@@ -15,20 +15,19 @@ OpenGLTextureCube::OpenGLTextureCube(
     glGenTextures(1, &m_RendererID);
     glBindTexture(GL_TEXTURE_CUBE_MAP, m_RendererID);
 
-    auto internalFormat = OpenGLUtils::textureInternalFormatToGL(specs.format);
-    auto format = OpenGLUtils::textureFormatToGL(specs.format);
+    auto glFormat = OpenGLUtils::textureFormatToGL(specs.format);
 
     for (uint32_t i = 0; i < 6; i++) {
         const void* data = images[i].data;
         glTexImage2D(
             GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
             0,
-            internalFormat,
+            glFormat.internalFormat,
             specs.width,
             specs.height,
             0,
-            format,
-            GL_UNSIGNED_BYTE,
+            glFormat.format,
+            glFormat.type,
             data);
     }
 

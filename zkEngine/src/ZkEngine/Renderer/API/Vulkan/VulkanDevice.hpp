@@ -21,6 +21,8 @@ class VulkanDevice : public RenderDevice {
     Ref<Texture> loadTextureCube(const std::vector<std::filesystem::path>& faces) override {}
     Ref<Texture> createTextureCube(const TextureSpecs& specs) override {}
 
+    Ref<Texture> loadTextureHDR(const std::string& path) override {}
+
     Scope<Framebuffer> createFramebuffer(const FramebufferSpec& specs) override {}
 
     Scope<VertexBuffer> createVertexBuffer(

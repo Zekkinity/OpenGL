@@ -4,7 +4,14 @@
 
 namespace zk::OpenGLUtils {
 
-uint32_t textureFormatToGL(TextureFormat format);
+struct GLTextureFormat {
+    uint32_t internalFormat;
+    uint32_t format;
+    uint32_t type;
+};
+
+GLTextureFormat textureFormatToGL(TextureFormat format);
+
 uint32_t textureInternalFormatToGL(TextureFormat format);
 uint32_t textureTypeToGL(TextureFormat format);
 

@@ -53,21 +53,18 @@ void OpenGLFramebuffer::invalidate() {
         for (size_t i = 0; i < m_ColorAttachments.size(); i++) {
             glBindTexture(GL_TEXTURE_2D, m_ColorAttachments[i]);
 
-            auto internalFormat =
-                OpenGLUtils::textureInternalFormatToGL(m_ColorAttachmentsSpecs[i].format);
-            auto format = OpenGLUtils::textureFormatToGL(m_ColorAttachmentsSpecs[i].format);
-            auto type = OpenGLUtils::textureTypeToGL(m_ColorAttachmentsSpecs[i].format);
+            auto glFormat = OpenGLUtils::textureFormatToGL(m_ColorAttachmentsSpecs[i].format);
 
             // Create empty texture
             glTexImage2D(
                 GL_TEXTURE_2D,
                 0,
-                internalFormat,
+                glFormat.internalFormat,
                 m_Specs.width,
                 m_Specs.height,
                 0,
-                format,
-                type,
+                glFormat.format,
+                glFormat.type,
                 NULL);
 
             auto filter = OpenGLUtils::textureFilterToGL(m_ColorAttachmentsSpecs[i].filter);
@@ -92,21 +89,18 @@ void OpenGLFramebuffer::invalidate() {
             glGenTextures(1, &m_DepthAttachment);
             glBindTexture(GL_TEXTURE_2D, m_DepthAttachment);
 
-            auto internalFormat =
-                OpenGLUtils::textureInternalFormatToGL(m_DepthAttachmentSpec.format);
-            auto format = OpenGLUtils::textureFormatToGL(m_DepthAttachmentSpec.format);
-            auto type = OpenGLUtils::textureTypeToGL(m_DepthAttachmentSpec.format);
+            auto glFormat = OpenGLUtils::textureFormatToGL(m_DepthAttachmentSpec.format);
 
             // Create empty texture
             glTexImage2D(
                 GL_TEXTURE_2D,
                 0,
-                internalFormat,
+                glFormat.internalFormat,
                 m_Specs.width,
                 m_Specs.height,
                 0,
-                format,
-                type,
+                glFormat.format,
+                glFormat.type,
                 NULL);
 
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -126,22 +120,19 @@ void OpenGLFramebuffer::invalidate() {
             glGenTextures(1, &m_DepthAttachment);
             glBindTexture(GL_TEXTURE_CUBE_MAP, m_DepthAttachment);
 
-            auto internalFormat =
-                OpenGLUtils::textureInternalFormatToGL(m_DepthAttachmentSpec.format);
-            auto format = OpenGLUtils::textureFormatToGL(m_DepthAttachmentSpec.format);
-            auto type = OpenGLUtils::textureTypeToGL(m_DepthAttachmentSpec.format);
+            auto glFormat = OpenGLUtils::textureFormatToGL(m_DepthAttachmentSpec.format);
 
             // Create empty cubemap
             for (uint32_t i = 0; i < 6; i++) {
                 glTexImage2D(
                     GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
                     0,
-                    internalFormat,
+                    glFormat.internalFormat,
                     m_Specs.width,
                     m_Specs.height,
                     0,
-                    format,
-                    type,
+                    glFormat.format,
+                    glFormat.type,
                     NULL);
             }
 

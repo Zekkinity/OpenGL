@@ -20,10 +20,14 @@ class OpenGLTexture2D : public Texture {
     int getWidth() const override { return m_Specs.width; }
     int getHeight() const override { return m_Specs.height; }
 
+    void* getData() const { return m_Image.data; }
+    int getChannels() const { return m_Image.channels; }
+
   private:
     uint32_t m_RendererID = 0;
 
     TextureSpecs m_Specs;
+    ImageData m_Image;
 };
 
 } // namespace zk

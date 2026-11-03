@@ -13,6 +13,8 @@ uniform bool u_GammaCorrection;
 uniform bool u_Kernel;
 uniform bool u_HDR;
 
+uniform float u_BloomStrength;
+
 uniform float u_Exposure;
 
 layout(std140, binding = 0) uniform Camera {
@@ -161,9 +163,9 @@ void main() {
     // Ignore all code above
 
     vec3 baseColor = texture(u_ScreenTexture, TexCoords).rgb;
-    // vec3 bloom = texture(u_BloomTexture, TexCoords).rgb;
+    vec3 bloom = texture(u_BloomTexture, TexCoords).rgb;
 
-    // baseColor += bloom;
+    baseColor += bloom * u_BloomStrength;
 
     vec3 finalColor = baseColor;
 
@@ -180,6 +182,9 @@ void main() {
 
     // HDR
     if (u_HDR) {
+        // Reinhard tonemapping
+        // color = color / (color + vec3(1.0));
+
         // Tone mapping
         finalColor = vec3(1.0) - exp(-finalColor * u_Exposure);
     }
@@ -188,7 +193,7 @@ void main() {
     // finalColor = DistanceFog(finalColor);
 
     // Saturation
-    // float luminance = dot(finalColor, vec3(0.2126, 0.7152, 0.0722)); 
+    // float luminance = dot(finalColor, vec3(0.2126, 0.7152, 0.0722));
     // vec3 grayScale = vec3(luminance);
     // finalColor = mix(grayScale, finalColor, 1.0);
 

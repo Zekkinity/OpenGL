@@ -20,18 +20,24 @@ namespace zk {
     again, but this time everything is gamma corrected only once.
 */
 
-OpenGLTexture2D::OpenGLTexture2D(const TextureSpecs& specs, ImageData image) : m_Specs(specs) {
+OpenGLTexture2D::OpenGLTexture2D(const TextureSpecs& specs, ImageData image) : m_Specs(specs), m_Image(image) {
     glGenTextures(1, &m_RendererID);
     glBindTexture(GL_TEXTURE_2D, m_RendererID);
 
-    auto internalFormat = OpenGLUtils::textureInternalFormatToGL(specs.format);
-    auto format = OpenGLUtils::textureFormatToGL(specs.format);
-    auto type = OpenGLUtils::textureTypeToGL(specs.format);
+    auto glFormat = OpenGLUtils::textureFormatToGL(specs.format);
 
     // GL_RGB12
     // GL_SRGB8_ALPHA8,
     glTexImage2D(
-        GL_TEXTURE_2D, 0, internalFormat, specs.width, specs.height, 0, format, type, image.data);
+        GL_TEXTURE_2D,
+        0,
+        glFormat.internalFormat,
+        specs.width,
+        specs.height,
+        0,
+        glFormat.format,
+        glFormat.type,
+        image.data);
 
     auto filter = OpenGLUtils::textureFilterToGL(specs.filter);
     auto wrap = OpenGLUtils::textureWrapToGL(specs.wrap);

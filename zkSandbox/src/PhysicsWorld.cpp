@@ -17,12 +17,15 @@
 void PhysicsWorld::init() {
     m_CubeMesh = GetAssets().getMesh(zk::PrimitiveType::Cube);
 
-    m_LightingShader = GetAssets().loadShader("shaders/lighting.vert", "shaders/multipleLightsShadow.frag");
+    // m_LightingShader = GetAssets().loadShader("shaders/lighting.vert",
+    // "shaders/multipleLightsShadow.frag"); m_LightingShader =
+    // GetAssets().loadShader("shaders/PBR.vert", "shaders/PBR.frag");
 
-    // m_LightingShader = Assets().loadShader("shaders/lighting.vert", "shaders/multipleLights.frag");
-    // m_LightingShader = Assets().loadShader("shaders/light.vert", "shaders/light.frag");
-    // m_LightingShader = Assets().loadShader("shaders/lightCube.vert", "shaders/lightCube.frag");
-    // m_FloorTexture = Assets().loadTexture("textures/rubber_tiles.png", zk::TextureFiltering::LINEAR);
+    // m_LightingShader = Assets().loadShader("shaders/lighting.vert",
+    // "shaders/multipleLights.frag"); m_LightingShader = Assets().loadShader("shaders/light.vert",
+    // "shaders/light.frag"); m_LightingShader = Assets().loadShader("shaders/lightCube.vert",
+    // "shaders/lightCube.frag"); m_FloorTexture = Assets().loadTexture("textures/rubber_tiles.png",
+    // zk::TextureFiltering::LINEAR);
     m_FloorTexture = GetAssets().loadTexture("textures/brickwall/brickwall.jpg");
     auto normalFloor = GetAssets().loadTexture("textures/brickwall/brickwall_normal.jpg");
     // m_FloorTexture = Assets().loadTexture("textures/wood.png");
@@ -65,14 +68,13 @@ void PhysicsWorld::init() {
 
     auto tree = createEntity();
     auto treeModel = GetAssets().loadModel("models/Tree/Tree.obj");
-
-    tree.addModel(treeModel, m_LightingShader);
+    tree.addModel(treeModel);
     tree.setPosition({0.0f, -2.0f, 15.0f});
     tree.setScale({6.0f, 6.0f, 6.0f});
 
     auto backpack = createEntity();
     auto backpackModel = GetAssets().loadModel("models/backpack/backpack.obj");
-    backpack.addModel(backpackModel, m_LightingShader);
+    backpack.addModel(backpackModel);
     backpack.setPosition({0.0f, 4.0f, -15.0f});
     // backpack.setScale({6.0f, 6.0f, 6.0f});
 
@@ -93,7 +95,8 @@ void PhysicsWorld::init() {
 
 void PhysicsWorld::update(float dt) {
     // if (getCamera()->getPosition().y <= 1.7f) {
-    //     getCamera()->setPosition({getCamera()->getPosition().x, 1.7f, getCamera()->getPosition().z});
+    //     getCamera()->setPosition({getCamera()->getPosition().x, 1.7f,
+    //     getCamera()->getPosition().z});
     // }
     // m_Player->onUpdate(dt);
 
@@ -104,10 +107,12 @@ void PhysicsWorld::update(float dt) {
     //                       m_Camera->getFront() * distance);
 
     // Update Spotlight
-    // m_SpotLight.setPosition(getActiveCamera().getPosition());
-    // m_SpotLight.getSpotLight().direction = getActiveCamera().getComponent<zk::Transform3D>().getForward();
-    // float flicker = 0.9f + sin(zk::Time::getTime() * 10.0f) * 0.05f;
-    // m_SpotLight.getSpotLight().color = glm::vec3(1.0f) * flicker;
+    m_SpotLight.setPosition(getActiveCamera().getPosition());
+    m_SpotLight.getSpotLight().direction =
+    getActiveCamera().getComponent<zk::Transform3D>().getForward();
+    //float flicker = 0.9f +
+    // sin(zk::Time::getTime() * 10.0f) * 0.05f; m_SpotLight.getSpotLight().color = glm::vec3(1.0f)
+    // * flicker;
 
     posX += 0.6f * dt;
     // m_Entity.getComponent<zk::Transform3D>().position = {-posX, 0.0f, 0.0f};
@@ -119,21 +124,28 @@ void PhysicsWorld::buildFloor() {
     wall.addRenderable(m_CubeMesh, m_FloorMaterial);
     wall.setPosition({0.0f, 10.0f, -20.0f});
 
+    std::string path = "textures/Brick1/Bricks075A_1K-PNG_";
+    auto material = GetAssets().loadMaterial(
+        zk::MaterialSpecs{
+            .diffuse = GetAssets().loadTexture(path + "Color.png"),
+            .normal = GetAssets().loadTexture(path + "NormalGL.png"),
+            .roughness = GetAssets().loadTexture(path + "Roughness.png"),
+            .ao = GetAssets().loadTexture(path + "AmbientOcclusion.png"),
+        });
+
     // Add Floor
     auto dirt = createEntity();
-    dirt.addRenderable(m_CubeMesh, m_FloorMaterial);
+    dirt.addRenderable(m_CubeMesh, material);
+    // dirt.addRenderable(m_CubeMesh, m_FloorMaterial);
     dirt.setPosition({0.0f, -2.0f, 0.0f});
     dirt.setScale({100.0f, 0.1f, 100.0f});
-
-    // NOTE:
-    // Could do a std::vector<zk::Entity> and iterate over them? or maybe do a debug function in the
-    // engine
 
     m_BoxTexture = zk::Asset::loadTexture("textures/container2.png");              // nearest
     m_BoxSpecularMap = zk::Asset::loadTexture("textures/container2_specular.png"); // nearest
 
     m_BoxMaterial = zk::Asset::loadMaterial(
-        zk::MaterialSpecs{.shader = m_LightingShader, .diffuse = m_BoxTexture, .specular = m_BoxSpecularMap});
+        zk::MaterialSpecs{
+            .shader = m_LightingShader, .diffuse = m_BoxTexture, .specular = m_BoxSpecularMap});
     m_BoxMaterial->setShininess(64.0f);
 
     // Floating Boxes
@@ -182,19 +194,8 @@ void PhysicsWorld::buildLights() {
         .direction = m_LightDir,
     });
 
-    m_LightSourceShader = zk::Asset::loadShader("shaders/lighting.vert", "shaders/lightSource.frag");
-    m_LightSourceMaterial = zk::Asset::loadMaterial({m_LightSourceShader});
-
-    // Point Light
-    m_LightSource = createEntity();
-    m_LightSource.addRenderable(m_CubeMesh, m_LightSourceMaterial);
-    m_LightSource.addPointLight({
-        .linear = m_LightLinear,
-        .quadratic = m_LightQuadratic,
-    });
-
-    m_LightSource.setPosition(lightSourcePos);
-    m_LightSource.setScale({0.8f, 0.8f, 0.8f});
+    zk::Entity pointLight = SpawnPointLight();
+    pointLight.setPosition({0.0f, 10.0f, 0.0f});
 
     // m_Entity = zk::createEntity();
     // m_Entity.addRenderable(m_CubeMesh, m_LightSourceMaterial);
@@ -215,7 +216,8 @@ void PhysicsWorld::loadCubes() {
     dirtSpecs.filter = zk::TextureFilter::Nearest;
     auto dirtTexture = GetAssets().loadTexture("textures/default_dirt.png", dirtSpecs);
     // auto dirtTexture = Assets().loadTexture("textures/UV_MAP1K.jpg");
-    auto dirtMaterial = GetAssets().loadMaterial(zk::MaterialSpecs{.shader = dirtShader, .diffuse = dirtTexture});
+    auto dirtMaterial =
+        GetAssets().loadMaterial(zk::MaterialSpecs{.shader = dirtShader, .diffuse = dirtTexture});
 
     for (int i = 0; i < m_CubeCount; i++) {
         for (int j = 0; j < m_CubeCount; j++) {
